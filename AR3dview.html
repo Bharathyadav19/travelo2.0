@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Camera Playground</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #camera-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .overlay > * {
+            pointer-events: auto;
+        }
+
+        /* Header */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .back-btn {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+            background: #fff;
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+            max-width: 500px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 45px 12px 45px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.5);
+            background: #fff;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .camera-switch {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+        }
+
+        /* Categories */
+        .categories-panel {
+            position: absolute;
+            top: 90px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+            z-index: 99;
+        }
+
+        .categories-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+
+        .categories-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-btn {
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: white;
+            border-color: transparent;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Models Grid */
+        .models-panel {
+            position: absolute;
+            top: 160px;
+            left: 0;
+            right: 0;
+            bottom: 120px;
+            padding: 0 20px;
+            overflow-y: auto;
+            z-index: 98;
+            display: none;
+        }
+
+        .models-panel.active {
+            display: block;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            padding-bottom: 20px;
+        }
+
+        .model-item {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .model-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .model-preview {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        .model-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        /* AR Canvas */
+        .ar-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            display: none;
+        }
+
+        .ar-canvas.active {
+            display: block;
+        }
+
+        .model-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            z-index: 6;
+            display: none;
+        }
+
+        .model-container.active {
+            display: block;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Bottom Controls */
+        .bottom-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .capture-btn {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border: 4px solid #00d4ff;
+        }
+
+        .capture-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .share-btn, .ar-toggle-btn, .models-toggle-btn, .ar-navigate-btn, .ar-home-btn {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .ar-navigate-btn {
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid #00d4ff;
+        }
+
+        .ar-navigate-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.6);
+        }
+
+        .ar-home-btn {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 153, 255, 0.15));
+            border: 2px solid rgba(0, 212, 255, 0.4);
+        }
+
+        .ar-home-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 153, 255, 0.3));
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.5);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Preview Modal */
+        .preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .preview-modal.active {
+            display: flex;
+        }
+
+        .preview-image {
+            max-width: 90%;
+            max-height: 70vh;
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0, 212, 255, 0.5);
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .preview-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: white;
+        }
+
+        .cancel-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .preview-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Camera Permission Modal */
+        .permission-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .permission-modal.hidden {
+            display: none;
+        }
+
+        .permission-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .permission-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .permission-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .permission-text {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .permission-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .permission-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 15px;
+            margin: 20px;
+        }
+
+        /* AR Marker Guide */
+        .ar-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 3px dashed rgba(0, 212, 255, 0.8);
+            border-radius: 15px;
+            z-index: 4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        .model-controls {
+            position: absolute;
+            top: 180px;
+            right: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 101;
+        }
+
+        .model-controls.active {
+            display: flex;
+        }
+
+        .model-control-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .model-control-btn:hover {
+            transform: scale(1.1);
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Camera Permission Modal -->
+    <div class="permission-modal" id="permissionModal">
+        <div class="permission-content">
+            <div class="permission-icon">📷</div>
+            <h2 class="permission-title">Camera Access Required</h2>
+            <p class="permission-text">We need access to your camera to display AR models in your environment. Your privacy is important to us.</p>
+            <button class="permission-btn" onclick="requestCamera()">Enable Camera</button>
+        </div>
+    </div>
+
+    <!-- Camera View -->
+    <video id="camera-view" autoplay playsinline></video>
+
+    <!-- AR Canvas -->
+    <div class="ar-canvas" id="arCanvas">
+        <div class="ar-guide"></div>
+    </div>
+
+    <!-- Model Container -->
+    <div class="model-container" id="modelContainer"></div>
+
+    <!-- Overlay UI -->
+    <div class="overlay">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="search-container">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" class="search-bar" id="searchBar" placeholder="Search models...">
+                <button class="camera-switch" onclick="switchCamera()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                        <path d="M17 8h.01"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="categories-panel">
+            <div class="categories-scroll">
+                <button class="category-btn active" data-category="all">All</button>
+                <button class="category-btn" data-category="adventure">🏔️ Adventure</button>
+                <button class="category-btn" data-category="nature">🌳 Nature</button>
+                <button class="category-btn" data-category="water">💧 Water</button>
+                <button class="category-btn" data-category="buildings">🏛️ Buildings</button>
+                <button class="category-btn" data-category="urban">🌆 Urban</button>
+            </div>
+        </div>
+
+        <!-- Models Panel -->
+        <div class="models-panel" id="modelsPanel"></div>
+
+        <!-- Model Controls -->
+        <div class="model-controls" id="modelControls">
+            <button class="model-control-btn" onclick="rotateModel()" title="Rotate">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                </svg>
+            </button>
+            <button class="model-control-btn" onclick="scaleUp()" title="Scale Up">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="11" y1="8" x2="11" y2="14"/>
+                    <line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+            </button>
+            <button class="model-control-btn" onclick="scaleDown()" title="Scale Down">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+            </button>
+            <button class="model-control-btn" onclick="removeModel()" title="Remove">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="bottom-controls">
+            <button class="control-btn models-toggle-btn" onclick="toggleModels()" title="Show Models">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+            </button>
+            <button class="control-btn ar-navigate-btn" onclick="navigateToLocation()" title="AR Navigation to Location">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 2v20M2 12h20"/>
+                    <path d="M12 6l6 6-6 6" stroke="#00d4ff" fill="none"/>
+                </svg>
+            </button>
+            <button class="control-btn capture-btn" onclick="capturePhoto()" title="Capture Photo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                </svg>
+            </button>
+            <button class="control-btn ar-home-btn" onclick="goToARHome()" title="AR Home & Routes">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    <circle cx="19" cy="5" r="2" fill="#00d4ff"/>
+                </svg>
+            </button>
+            <button class="control-btn share-btn" onclick="shareContent()" title="Share">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <circle cx="18" cy="5" r="3"/>
+                    <circle cx="6" cy="12" r="3"/>
+                    <circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="preview-modal" id="previewModal">
+        <img class="preview-image" id="previewImage" src="" alt="Preview">
+        <div class="preview-actions">
+            <button class="preview-btn save-btn" onclick="savePhoto()">💾 Save to Gallery</button>
+            <button class="preview-btn cancel-btn" onclick="closePreview()">✕ Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Models Database with Real Models and Locations
+        const modelsDatabase = [
+            // Adventure
+            { id: 1, name: '⛰️ Mountain Peak', category: 'adventure', model: 'https://threejs.org/examples/models/gltf/LittlestTokyo.glb', location: { lat: 28.6139, lng: 77.2090, name: 'Adventure Sports Delhi' } },
+            { id: 2, name: '🏕️ Camping Tent', category: 'adventure', model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/camp-tent/model.gltf', location: { lat: 28.7041, lng: 77.1025, name: 'Camping Gear Store' } },
+            { id: 3, name: '🧗 Climbing Wall', category: 'adventure', model: 'https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb', location: { lat: 28.5355, lng: 77.3910, name: 'Rock Climbing Center' } },
+            { id: 4, name: '🎒 Backpack', category: 'adventure', model: 'https://modelviewer.dev/shared-assets/models/glTF-Sample-Models/2.0/Box/glTF-Binary/Box.glb', location: { lat: 28.6304, lng: 77.2177, name: 'Adventure Backpack Shop' } },
+            
+            // Nature
+            { id: 5, name: '🌳 Oak Tree', category: 'nature', model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/tree/model.gltf', location: { lat: 28.6542, lng: 77.2373, name: 'Garden Center' } },
+            { id: 6, name: '🌲 Pine Tree', category: 'nature', model: 'https://threejs.org/examples/models/gltf/Parrot.glb', location: { lat: 28.6692, lng: 77.2293, name: 'Plant Nursery' } },
+            { id: 7, name: '🌺 Flower Garden', category: 'nature', model: 'https://modelviewer.dev/shared-assets/models/reflective-sphere.gltf', location: { lat: 28.5244, lng: 77.1855, name: 'Flower Market' } },
+            { id: 8, name: '🦋 Butterfly', category: 'nature', model: 'https://threejs.org/examples/models/gltf/Flamingo.glb', location: { lat: 28.7041, lng: 77.1025, name: 'Nature Museum' } },
+            { id: 9, name: '🍄 Mushroom', category: 'nature', model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/mushroom/model.gltf', location: { lat: 28.6139, lng: 77.2090, name: 'Organic Store' } },
+            
+            // Water
+            { id: 10, name: '🌊 River Flow', category: 'water', model: 'https://threejs.org/examples/models/gltf/Horse.glb', location: { lat: 28.6562, lng: 77.2410, name: 'Water Features Store' } },
+            { id: 11, name: '💧 Waterfall', category: 'water', model: 'https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb', location: { lat: 28.6129, lng: 77.2295, name: 'Fountain Shop' } },
+            { id: 12, name: '🏞️ Lake View', category: 'water', model: 'https://threejs.org/examples/models/gltf/Stork.glb', location: { lat: 28.7041, lng: 77.1025, name: 'Lake Tours Delhi' } },
+            { id: 13, name: '⛲ Fountain', category: 'water', model: 'https://modelviewer.dev/shared-assets/models/reflective-sphere.gltf', location: { lat: 28.6304, lng: 77.2177, name: 'Garden Fountains' } },
+            { id: 14, name: '🌉 Water Bridge', category: 'water', model: 'https://threejs.org/examples/models/gltf/LittlestTokyo.glb', location: { lat: 28.6139, lng: 77.2090, name: 'Bridge Construction' } },
+            
+            // Buildings
+            { id: 15, name: '🏨 Hotel Tower', category: 'buildings', model: 'https://threejs.org/examples/models/gltf/LittlestTokyo.glb', location: { lat: 28.6139, lng: 77.2090, name: 'Hotel Taj Palace' } },
+            { id: 16, name: '🛕 Temple', category: 'buildings', model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/temple/model.gltf', location: { lat: 28.6562, lng: 77.2410, name: 'Akshardham Temple' } },
+            { id: 17, name: '🏫 School Building', category: 'buildings', model: 'https://threejs.org/examples/models/gltf/Xbot.glb', location: { lat: 28.6304, lng: 77.2177, name: 'DPS School' } },
+            { id: 18, name: '🎓 College Campus', category: 'buildings', model: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb', location: { lat: 28.5244, lng: 77.1855, name: 'Delhi University' } },
+            { id: 19, name: '🏢 Office Complex', category: 'buildings', model: 'https://threejs.org/examples/models/gltf/LittlestTokyo.glb', location: { lat: 28.4595, lng: 77.0266, name: 'Cyber Hub Gurgaon' } },
+            { id: 20, name: '🏥 Hospital', category: 'buildings', model: 'https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb', location: { lat: 28.5672, lng: 77.2006, name: 'AIIMS Hospital' } },
+            { id: 21, name: '⛪ Church', category: 'buildings', model: 'https://modelviewer.dev/shared-assets/models/reflective-sphere.gltf', location: { lat: 28.6353, lng: 77.2233, name: 'Sacred Heart Cathedral' } },
+            
+            // Urban
+            { id: 22, name: '🌉 City Bridge', category: 'urban', model: 'https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb', location: { lat: 28.6562, lng: 77.2410, name: 'Signature Bridge' } },
+            { id: 23, name: '🗿 Monument', category: 'urban', model: 'https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb', location: { lat: 28.6129, lng: 77.2295, name: 'India Gate' } },
+            { id: 24, name: '🏞️ City Park', category: 'urban', model: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb', location: { lat: 28.6330, lng: 77.2197, name: 'Lodhi Garden' } },
+            { id: 25, name: '🚉 Metro Station', category: 'urban', model: 'https://threejs.org/examples/models/gltf/Xbot.glb', location: { lat: 28.6271, lng: 77.2166, name: 'Rajiv Chowk Metro' } },
+            { id: 26, name: '🏟️ Stadium', category: 'urban', model: 'https://threejs.org/examples/models/gltf/LittlestTokyo.glb', location: { lat: 28.6362, lng: 77.2424, name: 'Jawaharlal Nehru Stadium' } },
+            { id: 27, name: '🎭 Theater', category: 'urban', model: 'https://modelviewer.dev/shared-assets/models/reflective-sphere.gltf', location: { lat: 28.5928, lng: 77.2272, name: 'Kingdom of Dreams' } },
+            { id: 28, name: '🏛️ Museum', category: 'urban', model: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb', location: { lat: 28.6117, lng: 77.2194, name: 'National Museum' } },
+            { id: 29, name: '🎡 Ferris Wheel', category: 'urban', model: 'https://threejs.org/examples/models/gltf/Horse.glb', location: { lat: 28.5244, lng: 77.1855, name: 'Adventure Island' } },
+            { id: 30, name: '🗼 Tower', category: 'urban', model: 'https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb', location: { lat: 28.6271, lng: 77.2166, name: 'Qutub Minar' } }
+        ];
+
+        let videoStream = null;
+        let currentCamera = 'environment';
+        let currentCategory = 'all';
+        let searchQuery = '';
+        let capturedImage = null;
+        let currentModel = null;
+        let modelScale = 1;
+        let modelRotation = 0;
+        let arMode = false;
+        let userLocation = null;
+
+        // Camera Functions
+        async function requestCamera() {
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: currentCamera,
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
+                };
+
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('camera-view');
+                video.srcObject = videoStream;
+                
+                document.getElementById('permissionModal').classList.add('hidden');
+                
+                // Get user location
+                getUserLocation();
+            } catch (error) {
+                alert('Camera access denied. Please enable camera permissions to use AR features.');
+                console.error('Camera error:', error);
+            }
+        }
+
+        // Get User Location
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        console.log('User location:', userLocation);
+                    },
+                    (error) => {
+                        console.error('Location error:', error);
+                        // Use default Delhi location if permission denied
+                        userLocation = { lat: 28.6139, lng: 77.2090 };
+                    }
+                );
+            } else {
+                userLocation = { lat: 28.6139, lng: 77.2090 };
+            }
+        }
+
+        // Calculate distance between two coordinates
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of Earth in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c; // Distance in km
+        }
+
+        // Navigate to nearest location (AR Navigation)
+        function navigateToLocation() {
+            if (!currentModel) {
+                alert('Please select a model first to navigate to its location!');
+                return;
+            }
+
+            if (!userLocation) {
+                alert('Getting your location... Please try again in a moment.');
+                getUserLocation();
+                return;
+            }
+
+            const modelLocation = currentModel.location;
+            const distance = calculateDistance(
+                userLocation.lat, 
+                userLocation.lng, 
+                modelLocation.lat, 
+                modelLocation.lng
+            ).toFixed(2);
+
+            // Show gamified AR navigation message
+            const message = `🎮 AR Navigation Activated!\n\n` +
+                          `📍 Destination: ${modelLocation.name}\n` +
+                          `📏 Distance: ${distance} km away\n\n` +
+                          `Redirecting to AR Route Navigator...`;
+            
+            alert(message);
+
+            // Store navigation data in sessionStorage for ARhome.html
+            const navigationData = {
+                source: {
+                    lat: userLocation.lat,
+                    lng: userLocation.lng,
+                    name: 'Your Location'
+                },
+                destination: {
+                    lat: modelLocation.lat,
+                    lng: modelLocation.lng,
+                    name: modelLocation.name
+                },
+                modelName: currentModel.name,
+                distance: distance
+            };
+
+            sessionStorage.setItem('arNavigation', JSON.stringify(navigationData));
+
+            // Stop camera before navigation
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Redirect to ARhome.html with navigation mode
+            window.location.href = 'ARhome.html?mode=navigation';
+        }
+
+        // Go to AR Home for route selection
+        function goToARHome() {
+            // Stop camera before navigation
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+
+            // If model is selected, store it for context
+            if (currentModel) {
+                const contextData = {
+                    lastModel: currentModel.name,
+                    lastLocation: currentModel.location,
+                    timestamp: Date.now()
+                };
+                sessionStorage.setItem('arContext', JSON.stringify(contextData));
+            }
+
+            // Redirect to ARhome.html
+            window.location.href = 'ARhome.html';
+        }
+
+        async function switchCamera() {
+            if (!videoStream) return;
+            
+            currentCamera = currentCamera === 'environment' ? 'user' : 'environment';
+            
+            videoStream.getTracks().forEach(track => track.stop());
+            await requestCamera();
+        }
+
+        function goBack() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            window.location.href = 'ARhome.html';
+        }
+
+        // Models Display
+        function renderModels() {
+            const modelsPanel = document.getElementById('modelsPanel');
+            let filteredModels = modelsDatabase;
+
+            if (currentCategory !== 'all') {
+                filteredModels = filteredModels.filter(m => m.category === currentCategory);
+            }
+
+            if (searchQuery) {
+                filteredModels = filteredModels.filter(m => 
+                    m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    m.category.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+
+            if (filteredModels.length === 0) {
+                modelsPanel.innerHTML = '<div class="no-results">No models found. Try different keywords.</div>';
+                return;
+            }
+
+            modelsPanel.innerHTML = `
+                <div class="models-grid">
+                    ${filteredModels.map(model => `
+                        <div class="model-item" onclick="placeModel(${model.id})">
+                            <div class="model-preview">${model.name.split(' ')[0]}</div>
+                            <div class="model-name">${model.name}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function toggleModels() {
+            const panel = document.getElementById('modelsPanel');
+            panel.classList.toggle('active');
+        }
+
+        // Category Filtering
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                renderModels();
+            });
+        });
+
+        // Search
+        document.getElementById('searchBar').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderModels();
+            if (searchQuery.length > 0) {
+                document.getElementById('modelsPanel').classList.add('active');
+            }
+        });
+
+        // Place Model in AR
+        function placeModel(modelId) {
+            const model = modelsDatabase.find(m => m.id === modelId);
+            if (!model) return;
+
+            currentModel = model;
+            modelScale = 1;
+            modelRotation = 0;
+
+            const container = document.getElementById('modelContainer');
+            container.innerHTML = `
+                <model-viewer
+                    src="${model.model}"
+                    alt="${model.name}"
+                    camera-controls
+                    auto-rotate
+                    shadow-intensity="1"
+                    environment-image="neutral"
+                    ar
+                    ar-modes="webxr scene-viewer quick-look"
+                    style="width: 100%; height: 100%;"
+                ></model-viewer>
+            `;
+            
+            container.classList.add('active');
+            document.getElementById('modelControls').classList.add('active');
+            document.getElementById('modelsPanel').classList.remove('active');
+
+            if (arMode) {
+                document.getElementById('arCanvas').classList.add('active');
+            }
+        }
+
+        // Model Controls
+        function rotateModel() {
+            if (!currentModel) return;
+            modelRotation += 45;
+            const modelViewer = document.querySelector('model-viewer');
+            if (modelViewer) {
+                modelViewer.orientation = `0deg ${modelRotation}deg 0deg`;
+            }
+        }
+
+        function scaleUp() {
+            if (!currentModel) return;
+            modelScale += 0.2;
+            const container = document.getElementById('modelContainer');
+            container.style.transform = `translate(-50%, -50%) scale(${modelScale})`;
+        }
+
+        function scaleDown() {
+            if (!currentModel) return;
+            modelScale = Math.max(0.2, modelScale - 0.2);
+            const container = document.getElementById('modelContainer');
+            container.style.transform = `translate(-50%, -50%) scale(${modelScale})`;
+        }
+
+        function removeModel() {
+            currentModel = null;
+            document.getElementById('modelContainer').classList.remove('active');
+            document.getElementById('modelControls').classList.remove('active');
+            document.getElementById('arCanvas').classList.remove('active');
+            arMode = false;
+        }
+
+        // AR Toggle
+        function toggleAR() {
+            arMode = !arMode;
+            const arCanvas = document.getElementById('arCanvas');
+            
+            if (arMode && currentModel) {
+                arCanvas.classList.add('active');
+            } else {
+                arCanvas.classList.remove('active');
+            }
+        }
+
+        // Capture Photo
+        function capturePhoto() {
+            const video = document.getElementById('camera-view');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Draw model overlay if present
+            const modelContainer = document.getElementById('modelContainer');
+            if (modelContainer.classList.contains('active')) {
+                const modelViewer = modelContainer.querySelector('model-viewer');
+                if (modelViewer) {
+                    modelViewer.toBlob().then(blob => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const modelX = (canvas.width - 300 * modelScale) / 2;
+                            const modelY = (canvas.height - 300 * modelScale) / 2;
+                            ctx.drawImage(img, modelX, modelY, 300 * modelScale, 300 * modelScale);
+                            showPreview(canvas.toDataURL('image/png'));
+                        };
+                        img.src = URL.createObjectURL(blob);
+                    });
+                    return;
+                }
+            }
+            
+            showPreview(canvas.toDataURL('image/png'));
+        }
+
+        function showPreview(imageData) {
+            capturedImage = imageData;
+            document.getElementById('previewImage').src = imageData;
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').classList.remove('active');
+            capturedImage = null;
+        }
+
+        function savePhoto() {
+            if (!capturedImage) return;
+            
+            const link = document.createElement('a');
+            link.download = `AR_Photo_${Date.now()}.png`;
+            link.href = capturedImage;
+            link.click();
+            
+            closePreview();
+            
+            // Show success message
+            alert('✅ Photo saved to your gallery!');
+        }
+
+        // Share
+        async function shareContent() {
+            if (!capturedImage) {
+                alert('Please capture a photo first before sharing!');
+                return;
+            }
+
+            try {
+                // Convert base64 to blob
+                const response = await fetch(capturedImage);
+                const blob = await response.blob();
+                const file = new File([blob], 'AR_Photo.png', { type: 'image/png' });
+
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'AR Place View',
+                        text: `Check out this AR experience! ${currentModel ? currentModel.name : ''}`,
+                        files: [file]
+                    });
+                } else {
+                    // Fallback: Copy link
+                    await navigator.clipboard.writeText(window.location.href);
+                    alert('📋 Link copied to clipboard! Share it with your friends.');
+                }
+            } catch (error) {
+                console.error('Share error:', error);
+                // Fallback: Download instead
+                savePhoto();
+            }
+        }
+
+        // Initialize
+        renderModels();
+
+        // Handle page visibility
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            } else if (!document.hidden && !videoStream) {
+                requestCamera();
+            }
+        });
+
+        // Prevent accidental back navigation
+        window.addEventListener('beforeunload', (e) => {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        // Touch gestures for model manipulation (mobile)
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.getElementById('modelContainer').addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.getElementById('modelContainer').addEventListener('touchmove', (e) => {
+            if (!currentModel) return;
+            e.preventDefault();
+            
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            
+            const deltaX = touchX - touchStartX;
+            const deltaY = touchY - touchStartY;
+            
+            // Rotate based on horizontal movement
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                modelRotation += deltaX * 0.5;
+                const modelViewer = document.querySelector('model-viewer');
+                if (modelViewer) {
+                    modelViewer.orientation = `0deg ${modelRotation}deg 0deg`;
+                }
+            }
+            
+            touchStartX = touchX;
+            touchStartY = touchY;
+        });
+
+        // Pinch to zoom (mobile)
+        let initialDistance = 0;
+
+        document.getElementById('modelContainer').addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                initialDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        });
+
+        document.getElementById('modelContainer').addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && currentModel) {
+                e.preventDefault();
+                
+                const currentDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                
+                const scaleChange = currentDistance / initialDistance;
+                modelScale *= scaleChange;
+                modelScale = Math.max(0.2, Math.min(3, modelScale));
+                
+                const container = document.getElementById('modelContainer');
+                container.style.transform = `translate(-50%, -50%) scale(${modelScale})`;
+                
+                initialDistance = currentDistance;
+            }
+        });
+    </script>
+</body>
+</html>

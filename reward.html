@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bleward - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            color: white;
+            font-size: 22px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: scale(1.05);
+        }
+
+        .balance-card {
+            margin: 20px;
+            padding: 35px 30px;
+            background: linear-gradient(135deg, #5b2d91 0%, #3d1f5e 100%);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(76, 40, 137, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .balance-label {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .balance-amount {
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: -2px;
+        }
+
+        .section-title {
+            padding: 0 20px;
+            margin: 32px 0 16px 0;
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .challenge-card {
+            margin: 0 20px 12px 20px;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .challenge-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .challenge-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .challenge-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #6b4ce6 0%, #8b6cf6 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 4px 15px rgba(107, 76, 230, 0.3);
+        }
+
+        .challenge-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .challenge-info p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+        }
+
+        .challenge-reward {
+            text-align: right;
+        }
+
+        .reward-amount {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .reward-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .chest-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 35px 20px 20px 20px;
+            padding: 50px 20px 40px 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chest-container:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-3px);
+        }
+
+        .chest-wrapper {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin-bottom: 25px;
+        }
+
+        .chest-image {
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #9b6cf8 0%, #6d5acf 50%, #4a90e2 100%);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-10px); }
+        }
+
+        .chest-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(139, 108, 246, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.15); opacity: 0.7; }
+        }
+
+        .lightning {
+            position: absolute;
+            top: -15px;
+            left: -45px;
+            font-size: 48px;
+            animation: flash 1.8s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.8));
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; transform: scale(1) rotate(-15deg); }
+            50% { opacity: 0.5; transform: scale(1.25) rotate(-20deg); }
+        }
+
+        .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 210px;
+            height: 210px;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 5;
+        }
+
+        .progress-bg {
+            stroke: rgba(255, 255, 255, 0.08);
+        }
+
+        .progress-bar {
+            stroke: url(#gradient);
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            stroke-dasharray: 660;
+            stroke-dashoffset: 165;
+            animation: progress 3s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% { stroke-dashoffset: 660; }
+            100% { stroke-dashoffset: 165; }
+        }
+
+        .unlock-text {
+            font-size: 19px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .countdown {
+            font-size: 42px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 14, 39, 0.98);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 18px 10px 25px 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.45);
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 14px;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+        }
+
+        .nav-item.active .nav-icon-wrapper {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            transform: scale(1.15);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.5);
+        }
+
+        .nav-icon-wrapper {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .verify-badge {
+            position: relative;
+        }
+
+        .verify-badge::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 12px;
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            border: 2px solid #0a0e27;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(180deg, #1a1f3a 0%, #0a0e27 100%);
+            margin: 10% auto;
+            padding: 30px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation: slideUp 0.3s;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #8b5cf6;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        .reward-box {
+            background: linear-gradient(135deg, #6b4ce6 0%, #8b6cf6 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .reward-box h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .reward-box .big-number {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .referral-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .referral-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .referral-link input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #8b5cf6;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            display: none;
+            animation: slideUpToast 0.3s;
+            z-index: 2000;
+        }
+
+        @keyframes slideUpToast {
+            from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="icon-btn">←</a>
+        <div class="header-title">Bleward</div>
+        <button class="icon-btn">⚙</button>
+    </div>
+
+    <div class="balance-card">
+        <div class="balance-label">Ethereum:</div>
+        <div class="balance-amount">5.23 ETH</div>
+    </div>
+
+    <div class="section-title">Uppolling Challenges</div>
+
+    <div class="challenge-card" onclick="openStakingModal()">
+        <div class="challenge-left">
+            <div class="challenge-icon">📊</div>
+            <div class="challenge-info">
+                <h3>Weekly Staking Challenge</h3>
+                <p>Reward</p>
+            </div>
+        </div>
+        <div class="challenge-reward">
+            <div class="reward-amount">100</div>
+            <div class="reward-label">ETH #1</div>
+        </div>
+    </div>
+
+    <div class="challenge-card" onclick="openReferralModal()">
+        <div class="challenge-left">
+            <div class="challenge-icon">🛡️</div>
+            <div class="challenge-info">
+                <h3>Referral Quest</h3>
+                <p>50 ETH Bonus</p>
+            </div>
+        </div>
+        <div class="challenge-reward">
+            <div class="reward-amount">50</div>
+            <div class="reward-label">ETH Bonus</div>
+        </div>
+    </div>
+
+    <div class="chest-container" onclick="openChest()">
+        <div class="chest-wrapper">
+            <div class="chest-glow"></div>
+            <svg class="progress-ring">
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <circle class="progress-bg" cx="105" cy="105" r="100"/>
+                <circle class="progress-bar" cx="105" cy="105" r="100"/>
+            </svg>
+            <div class="chest-image">🎁</div>
+            <div class="lightning">⚡</div>
+        </div>
+        <div class="unlock-text">Unlock in:</div>
+        <div class="countdown" id="countdown">02:45:17</div>
+    </div>
+
+    <!-- Staking Challenge Modal -->
+    <div id="stakingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeStakingModal()">&times;</span>
+            <h2 class="modal-title">Weekly Challenge Reward</h2>
+            
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Accepted</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+
+            <div class="reward-box">
+                <h3>Total Rewards Given</h3>
+                <div class="big-number">800 ETH</div>
+                <div class="stat-label">From 8 completed challenges</div>
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; text-align: center;">
+                <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Keep staking to earn more rewards! Complete challenges weekly to maximize your earnings.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral Modal -->
+    <div id="referralModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeReferralModal()">&times;</span>
+            <h2 class="modal-title">Referral Quest</h2>
+            
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Referrals</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">250</div>
+                    <div class="stat-label">ETH Earned</div>
+                </div>
+            </div>
+
+            <div class="referral-box">
+                <h3 style="font-size: 18px; margin-bottom: 10px;">🎁 Share Your Referral Link</h3>
+                <p style="color: rgba(255, 255, 255, 0.7); font-size: 13px; margin-bottom: 15px;">Earn 50 ETH for each friend who joins!</p>
+                
+                <div class="referral-link">
+                    <input type="text" id="referralLink" value="https://bleward.io/ref/USER12345" readonly>
+                    <button class="copy-btn" onclick="copyReferralLink()">📋 Copy</button>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: rgba(139, 92, 246, 0.1); border-radius: 12px;">
+                    <p style="font-size: 13px; color: rgba(255, 255, 255, 0.8); line-height: 1.6;">
+                        💡 <strong>Tip:</strong> Share this link with friends on social media, forums, or directly. You'll earn 50 ETH bonus for each successful referral!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">✓ Link copied to clipboard!</div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <div class="nav-icon-wrapper">
+                <div class="nav-icon">🏠</div>
+            </div>
+            <div class="nav-label">Home</div>
+        </a>
+        <a href="verification.html" class="nav-item verify-badge">
+            <div class="nav-icon-wrapper">
+                <div class="nav-icon">✓</div>
+            </div>
+            <div class="nav-label">Verify</div>
+        </a>
+        <a href="wallet.html" class="nav-item">
+            <div class="nav-icon-wrapper">
+                <div class="nav-icon">💳</div>
+            </div>
+            <div class="nav-label">Wallet</div>
+        </a>
+        <a href="Nft.html" class="nav-item">
+            <div class="nav-icon-wrapper">
+                <div class="nav-icon">🛄</div>
+            </div>
+            <div class="nav-label">NFT</div>
+        </a>
+    </nav>
+
+    <script>
+        let timeInSeconds = 2 * 3600 + 45 * 60 + 17;
+
+        function updateCountdown() {
+            const hours = Math.floor(timeInSeconds / 3600);
+            const minutes = Math.floor((timeInSeconds % 3600) / 60);
+            const seconds = timeInSeconds % 60;
+
+            const formatted = 
+                String(hours).padStart(2, '0') + ':' + 
+                String(minutes).padStart(2, '0') + ':' + 
+                String(seconds).padStart(2, '0');
+
+            document.getElementById('countdown').textContent = formatted;
+
+            if (timeInSeconds > 0) {
+                timeInSeconds--;
+            } else {
+                timeInSeconds = 0;
+                document.querySelector('.unlock-text').textContent = 'Ready to Unlock!';
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        function openStakingModal() {
+            document.getElementById('stakingModal').style.display = 'block';
+        }
+
+        function closeStakingModal() {
+            document.getElementById('stakingModal').style.display = 'none';
+        }
+
+        function openReferralModal() {
+            document.getElementById('referralModal').style.display = 'block';
+        }
+
+        function closeReferralModal() {
+            document.getElementById('referralModal').style.display = 'none';
+        }
+
+        function copyReferralLink() {
+            const linkInput = document.getElementById('referralLink');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function openChest() {
+            if (timeInSeconds === 0) {
+                alert('🎉 Congratulations! You unlocked your reward chest!');
+            }
+        }
+
+        window.onclick = function(event) {
+            const stakingModal = document.getElementById('stakingModal');
+            const referralModal = document.getElementById('referralModal');
+            if (event.target == stakingModal) {
+                stakingModal.style.display = 'none';
+            }
+            if (event.target == referralModal) {
+                referralModal.style.display = 'none';
+            }
+        }
+        let totalRewards = localStorage.getItem('totalRewards') || '0';
+let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+
+// Display total
+document.getElementById('totalCoins').textContent = totalRewards + ' ETH';
+
+// Display transactions
+transactions.forEach(tx => {
+    console.log(`${tx.type}: ${tx.amount} ETH at ${tx.location} (${tx.distance})`);
+});
+    </script>
+</body>
+</html>

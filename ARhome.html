@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Stories - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add this in <head> of arhome.html -->
+<script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0e27;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+        }
+
+        /* Top Section with Discover & Route */
+        .top-section {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(10, 14, 39, 0.5));
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            padding: 12px 15px;
+            z-index: 40;
+        }
+
+        .discover-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .discover-title {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .discover-title i {
+            font-size: 18px;
+        }
+
+        /* Route Input Section */
+        .route-inputs {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+
+        .input-group i {
+            color: #00d4ff;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 12px;
+            outline: none;
+            flex: 1;
+        }
+
+        .input-group input::placeholder {
+            color: #555;
+        }
+
+        .route-btn {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: black;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .route-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Main Content Wrapper */
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        /* Map Area */
+        .map-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Right Sidebar - Trending Stories */
+        .trending-sidebar {
+            width: 280px;
+            background: rgba(10, 14, 39, 0.95);
+            border-left: 1px solid rgba(0, 255, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            z-index: 30;
+        }
+
+        .sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+        }
+
+        .sidebar-title {
+            font-size: 13px;
+            color: #00d4ff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-title i {
+            font-size: 14px;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .sidebar-content::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 255, 0.25);
+            border-radius: 10px;
+        }
+
+        .story-item {
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .story-item:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 255, 255, 0.4);
+            transform: translateX(-3px);
+        }
+
+        .story-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .story-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .story-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .story-location {
+            font-size: 10px;
+            color: #888;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            height: 55px;
+            background: rgba(10, 14, 39, 0.95);
+            border-top: 1px solid rgba(0, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 40;
+        }
+
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            gap: 0;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            width: 60px;
+            height: 55px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #555;
+            font-size: 18px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: #00d4ff;
+        }
+
+        .nav-item.active {
+            color: #00d4ff;
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        .nav-label {
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        /* Popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .popup.active {
+            display: flex;
+        }
+
+        .popup-content {
+            background: linear-gradient(135deg, #1a1f3a, #0a0e27);
+            border: 1px solid rgba(0, 255, 255, 0.25);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #00d4ff;
+            font-size: 16px;
+        }
+
+        .popup-close:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        .popup-avatar {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            flex-shrink: 0;
+        }
+
+        .popup-user-info h3 {
+            font-size: 18px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .popup-user-info p {
+            font-size: 13px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ar-suggestion {
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            margin: 15px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .ar-suggestion strong {
+            color: #00d4ff;
+        }
+
+        .popup-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .popup-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: black;
+        }
+
+        .view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .close-popup-btn {
+            background: rgba(0, 212, 255, 0.08);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .close-popup-btn:hover {
+            background: rgba(0, 212, 255, 0.15);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .trending-sidebar {
+                width: 240px;
+            }
+
+            .discover-title {
+                font-size: 16px;
+            }
+
+            .route-inputs {
+                gap: 6px;
+            }
+
+            .input-group {
+                padding: 6px 8px;
+            }
+
+            .input-group input {
+                font-size: 11px;
+            }
+
+            .route-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            .story-item {
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+
+            .story-avatar {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+
+            .story-name {
+                font-size: 11px;
+            }
+
+            .story-location {
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .trending-sidebar {
+                display: none;
+            }
+
+            .discover-header {
+                flex-wrap: wrap;
+            }
+
+            .discover-title {
+                font-size: 14px;
+                flex: 1 100%;
+                margin-bottom: 8px;
+            }
+
+            .route-inputs {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .input-group {
+                width: 100%;
+            }
+
+            .route-btn {
+                width: 100%;
+            }
+
+            .nav-item {
+                width: 50px;
+            }
+
+            .nav-label {
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Section -->
+        <div class="top-section">
+            <div class="discover-header">
+                <div class="discover-title">
+                    <i class="fas fa-compass"></i>
+                    Discover AR Stories
+                </div>
+
+                <div class="route-inputs">
+                    <div class="input-group">
+                        <i class="fas fa-location-dot"></i>
+                        <input type="text" id="sourceInput" placeholder="Source">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-map-pin"></i>
+                        <input type="text" id="destinationInput" placeholder="Destination">
+                    </div>
+                    <button class="route-btn" onclick="calculateRoute()">
+                        <i class="fas fa-road"></i>
+                        Route
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Map Area -->
+            <div class="map-wrapper" id="mainContent">
+                <div id="map"></div>
+            </div>
+
+            <!-- Right Sidebar - Trending Stories -->
+            <div class="trending-sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">
+                        <i class="fas fa-fire"></i>
+                        Trending
+                    </div>
+                </div>
+
+                <div class="sidebar-content" id="trendingList">
+                    <!-- Trending stories will be added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-items">
+                <a href="ARhome.html" class="nav-item active" onclick="switchTab('home', event)">
+                    <i class="fas fa-map-location-dot"></i>
+                    <span class="nav-label">Map</span>
+                </a>
+                <a href="ARHistory.html" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span class="nav-label">History</span>
+                </a>
+                <a href="ARstory.html" class="nav-item" onclick="switchTab('create', event)">
+                    <i class="fas fa-circle-plus"></i>
+                    <span class="nav-label">AR create</span>
+                </a>
+                <a href="AR3dview.html" class="nav-item">
+                    <i class="fas fa-cube"></i>
+                    <span class="nav-label">3D</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup -->
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <div class="popup-close" onclick="closePopup()">
+                <i class="fas fa-times"></i>
+            </div>
+            
+            <div class="popup-header">
+                <div class="popup-avatar" id="popupAvatar">👨</div>
+                <div class="popup-user-info">
+                    <h3 id="popupUserName">User Name</h3>
+                    <p>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="popupLocation">Location</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="ar-suggestion" id="arSuggestion">
+                <strong>✨ AR Suggestion:</strong><br>
+                <span id="suggestionText">Loading...</span>
+            </div>
+
+            <div class="popup-actions">
+                <button class="popup-btn view-btn" onclick="viewStory()">
+                    <i class="fas fa-play-circle"></i> View AR
+                </button>
+                <button class="popup-btn close-popup-btn" onclick="closePopup()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+
+    <script>
+        let map;
+        let userMarker;
+        let routeLine = null;
+        let userLocation = { lat: 28.5355, lng: 77.3910 };
+        let selectedStory = null;
+
+        const storiesData = [
+            { 
+                id: 1, 
+                user: 'Alex Turner', 
+                location: 'Downtown Park', 
+                avatar: '👨', 
+                lat: 28.5365, 
+                lng: 77.3920,
+                suggestions: ['Forest Vista AR', 'Nature Panorama', 'Park Explorer']
+            },
+            { 
+                id: 2, 
+                user: 'Sarah Chen', 
+                location: 'City Center', 
+                avatar: '👩', 
+                lat: 28.5345, 
+                lng: 77.3900,
+                suggestions: ['Urban Art Gallery', 'City Landmarks', '360° City View']
+            },
+            { 
+                id: 3, 
+                user: 'Mike Johnson', 
+                location: 'Beach Area', 
+                avatar: '👨', 
+                lat: 28.5375, 
+                lng: 77.3930,
+                suggestions: ['Sunset Time-lapse', 'Beach Wildlife', 'Ocean Explorer']
+            },
+            { 
+                id: 4, 
+                user: 'Emma Davis', 
+                location: 'Garden Square', 
+                avatar: '👩', 
+                lat: 28.5335, 
+                lng: 77.3910,
+                suggestions: ['Flower Gallery', 'Garden Tour', 'Nature Walk']
+            },
+            { 
+                id: 5, 
+                user: 'Chris Wilson', 
+                location: 'Market Street', 
+                avatar: '👨', 
+                lat: 28.5355, 
+                lng: 77.3890,
+                suggestions: ['Street Culture', 'Local Crafts', 'Market Guide']
+            },
+        ];
+
+        function initMap() {
+            map = L.map('map').setView([userLocation.lat, userLocation.lng], 16);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 19,
+            }).addTo(map);
+
+            const userIcon = L.divIcon({
+                html: '<div style="background: linear-gradient(135deg, #00d4ff, #0099ff); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 0 15px rgba(0,212,255,0.6); color: white; font-size: 18px;"><i class="fas fa-user"></i></div>',
+                iconSize: [40, 40],
+            });
+
+            userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon }).addTo(map);
+
+            storiesData.forEach(story => {
+                const storyIcon = L.divIcon({
+                    html: `<div style="background: radial-gradient(circle, #00d4ff, #0077cc); width: 38px; height: 38px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 0 15px rgba(0,212,255,0.6); font-size: 18px;">${story.avatar}</div>`,
+                    iconSize: [38, 38],
+                });
+
+                const marker = L.marker([story.lat, story.lng], { icon: storyIcon }).addTo(map);
+                marker.on('click', () => openPopup(story));
+            });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+                        userMarker.setLatLng([userLocation.lat, userLocation.lng]);
+                        map.setView([userLocation.lat, userLocation.lng], 16);
+                    }
+                );
+            }
+        }
+
+        function initTrendingList() {
+            const list = document.getElementById('trendingList');
+            list.innerHTML = '';
+            storiesData.forEach(story => {
+                const item = document.createElement('div');
+                item.className = 'story-item';
+                item.innerHTML = `
+                    <div class="story-avatar">${story.avatar}</div>
+                    <div class="story-info">
+                        <div class="story-name">${story.user}</div>
+                        <div class="story-location">${story.location}</div>
+                    </div>
+                `;
+                item.addEventListener('click', () => openPopup(story));
+                list.appendChild(item);
+            });
+        }
+
+        function calculateRoute() {
+            const source = document.getElementById('sourceInput').value;
+            const destination = document.getElementById('destinationInput').value;
+
+            if (!source || !destination) {
+                alert('Please enter both source and destination');
+                return;
+            }
+
+            const destLat = userLocation.lat + (Math.random() - 0.5) * 0.01;
+            const destLng = userLocation.lng + (Math.random() - 0.5) * 0.01;
+
+            if (routeLine) {
+                map.removeLayer(routeLine);
+            }
+
+            routeLine = L.polyline([
+                [userLocation.lat, userLocation.lng],
+                [destLat, destLng]
+            ], {
+                color: '#00d4ff',
+                weight: 3,
+                opacity: 0.8,
+                dashArray: '5, 5'
+            }).addTo(map);
+
+            map.fitBounds(routeLine.getBounds());
+            alert(`Route from "${source}" to "${destination}" displayed!`);
+        }
+
+        function openPopup(story) {
+            selectedStory = story;
+            document.getElementById('popupAvatar').textContent = story.avatar;
+            document.getElementById('popupUserName').textContent = story.user;
+            document.getElementById('popupLocation').textContent = story.location;
+            const suggestion = story.suggestions[Math.floor(Math.random() * story.suggestions.length)];
+            document.getElementById('suggestionText').innerHTML = `Try <strong>"${suggestion}"</strong>`;
+            document.getElementById('popup').classList.add('active');
+        }
+
+        function closePopup() {
+            document.getElementById('popup').classList.remove('active');
+            selectedStory = null;
+        }
+
+        function viewStory() {
+            if (selectedStory) {
+                alert(`🎬 Loading: ${selectedStory.user}'s AR Story`);
+            }
+        }
+
+        function switchTab(tab, event) {
+            event.preventDefault();
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+
+            const mainContent = document.getElementById('mainContent');
+            
+            if (tab === 'home') {
+                mainContent.innerHTML = `<div id="map"></div>`;
+                initMap();
+            } else if (tab === 'history') {
+                mainContent.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; color: #888;">
+                        <div>
+                            <div style="font-size: 50px; margin-bottom: 15px; color: #00d4ff;"><i class="fas fa-history"></i></div>
+                            <h3 style="font-size: 18px; margin-bottom: 8px; font-weight: 700; color: white;">View History</h3>
+                            <p style="font-size: 13px;">Your AR story viewing history</p>
+                        </div>
+                    </div>
+                `;
+            } else if (tab === 'create') {
+                mainContent.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; color: #888;">
+                        <div>
+                            <div style="font-size: 50px; margin-bottom: 15px; color: #00d4ff;"><i class="fas fa-circle-plus"></i></div>
+                            <h3 style="font-size: 18px; margin-bottom: 8px; font-weight: 700; color: white;">Create AR Story</h3>
+                            <p style="font-size: 13px;">Create your own AR experiences</p>
+                        </div>
+                    </div>
+                `;
+            } else if (tab === '3dview') {
+                mainContent.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; text-align: center; color: #888;">
+                        <div>
+                            <div style="font-size: 50px; margin-bottom: 15px; color: #00d4ff;"><i class="fas fa-cube"></i></div>
+                            <h3 style="font-size: 18px; margin-bottom: 8px; font-weight: 700; color: white;">3D View</h3>
+                            <p style="font-size: 13px;">View 3D AR models</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        window.addEventListener('load', () => {
+            initMap();
+            initTrendingList();
+        });
+
+        document.getElementById('popup').addEventListener('click', (e) => {
+            if (e.target.id === 'popup') closePopup();
+        });
+        //<-- tab switch -->
+        function switchTab(tab, event) {
+                event.preventDefault(); // Prevents default anchor navigation
+                if(tab === 'create') {
+                    window.location.href = "ARstory.html";
+                }
+            }
+        </script>
+
+    </body>
+</html>

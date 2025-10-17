@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Navigation Mode</title>
+  
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="lib/aframe-ar.js"></script>
+  
+  <style>
+    body { margin: 0; overflow: hidden; }
+    .ar-info {
+      position: fixed; top: 20px; left: 20px; z-index: 100;
+      background: rgba(0,0,0,0.85); color: white; padding: 15px;
+      border-radius: 12px; font-family: sans-serif; border: 1px solid #00d4ff;
+      max-width: 250px;
+    }
+    .back-btn {
+      position: fixed; top: 20px; right: 20px; z-index: 100;
+      padding: 10px 20px; background: #00d4ff; color: black;
+      border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="window.location.href='armap.html'">← Exit AR</button>
+  
+  <div class="ar-info">
+    <h3>🔍 AR Navigation</h3>
+    <p id="status">Initializing GPS...</p>
+    <p id="distance">Distance: --</p>
+    <p id="direction">Direction: --</p>
+  </div>
+
+  <a-scene 
+    vr-mode-ui="enabled: false" 
+    arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;">
+    
+    <a-camera gps-new-camera="gpsMinDistance: 5"></a-camera>
+    
+    <!-- Destination Marker -->
+    <a-entity 
+      id="destination"
+      gps-new-entity-place="latitude: 28.5365; longitude: 77.3920">
+      <a-cylinder color="yellow" height="15" radius="1" animation="property: rotation; to: 0 360 0; loop: true; dur: 5000"></a-cylinder>
+      <a-text value="Destination\n1.2km" align="center" color="#FFF" position="0 18 0" scale="5 5 5"></a-text>
+    </a-entity>
+
+    <!-- AR Story Pin 1 -->
+    <a-entity gps-new-entity-place="latitude: 28.5360; longitude: 77.3915">
+      <a-box color="cyan" scale="3 3 3" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000"></a-box>
+      <a-text value="Alex Turner" align="center" color="#FFF" position="0 4 0" scale="3 3 3"></a-text>
+    </a-entity>
+
+    <!-- AR Story Pin 2 -->
+    <a-entity gps-new-entity-place="latitude: 28.5350; longitude: 77.3920">
+      <a-sphere color="#ff00ff" scale="3 3 3" animation="property: position; to: 0 2 0; dir: alternate; loop: true; dur: 1000"></a-sphere>
+      <a-text value="Sarah Chen" align="center" color="#FFF" position="0 5 0" scale="3 3 3"></a-text>
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    // Load route data
+    const data = JSON.parse(localStorage.getItem('arChallengeData') || '{}');
+    const destLat = data.destLat || 28.5365;
+    const destLng = data.destLng || 77.3920;
+    
+    document.getElementById('status').textContent = 'AR Ready - Point at ground';
+
+    // Track user location
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition((pos) => {
+        const userLat = pos.coords.latitude;
+        const userLng = pos.coords.longitude;
+
+        // Calculate distance
+        const R = 6371; // Earth radius in km
+        const dLat = (destLat - userLat) * Math.PI / 180;
+        const dLng = (destLng - userLng) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(userLat * Math.PI / 180) * Math.cos(destLat * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distance = R * c;
+
+        document.getElementById('distance').textContent = `Distance: ${(distance * 1000).toFixed(0)}m`;
+        
+        // Calculate direction
+        const bearing = Math.atan2(
+          Math.sin(dLng) * Math.cos(destLat * Math.PI / 180),
+          Math.cos(userLat * Math.PI / 180) * Math.sin(destLat * Math.PI / 180) -
+          Math.sin(userLat * Math.PI / 180) * Math.cos(destLat * Math.PI / 180) * Math.cos(dLng)
+        ) * 180 / Math.PI;
+        
+        const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        const dir = directions[Math.round(((bearing + 360) % 360) / 45) % 8];
+        document.getElementById('direction').textContent = `Direction: ${dir}`;
+      });
+    }
+  </script>
+</body>
+</html>
+

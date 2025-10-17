@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Travelo</title>
+    <link rel="stylesheet" href="setting.css">
+
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <h1>⚙️ Settings</h1>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile-section" onclick="openProfile()">
+            <div class="profile-avatar">🧳</div>
+            <div class="profile-info">
+                <h2 id="userName">traveler_john</h2>
+                <p>👁️ View Profile</p>
+            </div>
+            <span class="profile-arrow">›</span>
+        </div>
+
+        <!-- Coin Activity -->
+        <div class="coin-activity">
+            <h3>💰 Coin Activity</h3>
+            <div class="coin-stats">
+                <div class="coin-stat">
+                    <div class="coin-stat-icon">🪙</div>
+                    <div class="coin-stat-value" id="currentCoins">145</div>
+                    <div class="coin-stat-label">Current</div>
+                </div>
+                <div class="coin-stat">
+                    <div class="coin-stat-icon">✨</div>
+                    <div class="coin-stat-value" id="redeemedCoins">30</div>
+                    <div class="coin-stat-label">Redeemed</div>
+                </div>
+                <div class="coin-stat">
+                    <div class="coin-stat-icon">⚠️</div>
+                    <div class="coin-stat-value" id="deductedCoins">-6</div>
+                    <div class="coin-stat-label">Deducted</div>
+                </div>
+            </div>
+            <button class="redeem-btn" onclick="openRedeemModal()">🎁 Redeem Coins</button>
+        </div>
+
+        <!-- User Activity -->
+        <div class="settings-group">
+            <div class="settings-item" onclick="toggleDropdown('activityDropdown', this)">
+                <div class="settings-item-left">
+                    <span class="settings-icon">📊</span>
+                    <div class="settings-text">
+                        <h3>User Activity</h3>
+                        <p>Posts, videos, vibes & saved</p>
+                    </div>
+                </div>
+                <span class="arrow">›</span>
+            </div>
+            <div class="dropdown" id="activityDropdown">
+                <div class="dropdown-item" onclick="navigateTo('posts')">
+                    <span>📝</span>
+                    <span>My Posts</span>
+                </div>
+                <div class="dropdown-item" onclick="navigateTo('videos')">
+                    <span>🎥</span>
+                    <span>My Videos</span>
+                </div>
+                <div class="dropdown-item" onclick="navigateTo('vibes')">
+                    <span>✨</span>
+                    <span>My Vibes (Stories)</span>
+                </div>
+                <div class="dropdown-item" onclick="navigateTo('saved')">
+                    <span>🔖</span>
+                    <span>Saved Content</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Options -->
+        <div class="settings-group">
+            <div class="settings-item" onclick="toggleDropdown('accountDropdown', this)">
+                <div class="settings-item-left">
+                    <span class="settings-icon">👤</span>
+                    <div class="settings-text">
+                        <h3>Account</h3>
+                        <p>Manage your account</p>
+                    </div>
+                </div>
+                <span class="arrow">›</span>
+            </div>
+            <div class="dropdown" id="accountDropdown">
+                <div class="dropdown-item" onclick="showEmail()">
+                    <span>📧</span>
+                    <span>Email: <span id="emailDisplay">traveler@travelo.com</span></span>
+                </div>
+                <div class="dropdown-item" onclick="showNotification('Logged out successfully!')">
+                    <span>🚪</span>
+                    <span>Logout</span>
+                </div>
+                <div class="dropdown-item danger-item" onclick="showDeleteModal()">
+                    <span>🗑️</span>
+                    <span>Delete Account</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Options -->
+        <div class="settings-group">
+            <div class="settings-item" onclick="toggleDropdown('themeDropdown', this)">
+                <div class="settings-item-left">
+                    <span class="settings-icon">🎨</span>
+                    <div class="settings-text">
+                        <h3>Theme</h3>
+                        <p>Customize appearance</p>
+                    </div>
+                </div>
+                <span class="arrow">›</span>
+            </div>
+            <div class="dropdown" id="themeDropdown">
+                <div class="theme-option" onclick="setTheme('light')">
+                    <div class="theme-preview light">☀️</div>
+                    <span>Light Mode</span>
+                </div>
+                <div class="theme-option" onclick="setTheme('dark')">
+                    <div class="theme-preview dark">🌙</div>
+                    <span>Dark Mode</span>
+                </div>
+                <div class="theme-option" onclick="setTheme('happy')">
+                    <div class="theme-preview happy">🌸</div>
+                    <span>Happy Flowers</span>
+                </div>
+                <div class="theme-option" onclick="setTheme('forest')">
+                    <div class="theme-preview forest">🌲</div>
+                    <span>Forest Trees</span>
+                </div>
+                <div class="theme-option" onclick="setTheme('night')">
+                    <div class="theme-preview night">🌜</div>
+                    <span>Night Moon</span>
+                </div>
+                <div class="theme-option" onclick="setTheme('sunrise')">
+                    <div class="theme-preview sunrise">🌅</div>
+                    <span>Sunrise Glory</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="settings-item" onclick="toggleNotifications()">
+            <div class="settings-item-left">
+                <span class="settings-icon">🔔</span>
+                <div class="settings-text">
+                    <h3>Notifications</h3>
+                    <p>Push notifications</p>
+                </div>
+            </div>
+            <div class="toggle-switch active" id="notifToggle">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+
+        <!-- Privacy & Policy -->
+        <div class="settings-item" onclick="togglePrivacy(this)">
+            <div class="settings-item-left">
+                <span class="settings-icon">🔒</span>
+                <div class="settings-text">
+                    <h3>Privacy & Policy</h3>
+                    <p>Terms and settings</p>
+                </div>
+            </div>
+            <span class="arrow" id="privacyArrow">›</span>
+        </div>
+
+        <div class="privacy-content" id="privacyContent">
+            <h3>🔐 Account Privacy</h3>
+            <div class="privacy-toggle">
+                <span>Public Account</span>
+                <div class="toggle-switch active" id="publicToggle" onclick="togglePublicAccount(event)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            <div class="privacy-toggle">
+                <span>Show Activity Status</span>
+                <div class="toggle-switch active" id="activityToggle" onclick="toggleActivityStatus(event)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            <div class="privacy-toggle">
+                <span>Allow Profile Views</span>
+                <div class="toggle-switch active" id="profileViewToggle" onclick="toggleProfileView(event)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <h3>📋 Terms & Conditions</h3>
+            <p>By using Travelo, you agree to our terms of service. We collect location data to enhance your travel experience and connect you with fellow travelers.</p>
+            
+            <h3>🛡️ Data Privacy</h3>
+            <p>Your personal information is encrypted and protected. We never share your data with third parties without consent. You have full control over your privacy settings.</p>
+            
+            <h3>🌍 Content Policy</h3>
+            <p>Users must post authentic travel content. Fake locations or misleading information will result in coin deductions and potential account suspension.</p>
+        </div>
+
+        <!-- Contact Us -->
+        <div class="settings-item" onclick="openContactModal()">
+            <div class="settings-item-left">
+                <span class="settings-icon">💬</span>
+                <div class="settings-text">
+                    <h3>Contact Us</h3>
+                    <p>Get help and support</p>
+                </div>
+            </div>
+            <span class="arrow">›</span>
+        </div>
+
+        <!-- Saved Content -->
+        <div class="settings-item" onclick="navigateTo('saved')">
+            <div class="settings-item-left">
+                <span class="settings-icon">🔖</span>
+                <div class="settings-text">
+                    <h3>Saved</h3>
+                    <p>Your bookmarked content</p>
+                </div>
+            </div>
+            <span class="arrow">›</span>
+        </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2>⚠️ Delete Account</h2>
+            <p>Are you sure you want to delete your account? This action cannot be undone. All your travel memories, coins, and connections will be lost forever.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="btn btn-danger" onclick="deleteAccount()">Delete Forever</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Us Modal -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content">
+            <h2>💬 Contact Support</h2>
+            <p>We're here to help! Share your feedback or report an issue.</p>
+            <form id="contactForm" onsubmit="submitContact(event)">
+                <label for="contactEmail">📧 Your Email</label>
+                <input type="email" id="contactEmail" placeholder="Enter your email" required>
+                
+                <label for="contactMessage">✍️ Message</label>
+                <textarea id="contactMessage" placeholder="Tell us what's on your mind..." required></textarea>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('contactModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Redeem Coins Modal -->
+    <div class="modal" id="redeemModal">
+        <div class="modal-content">
+            <h2>🎁 Redeem Coins</h2>
+            <p>Convert your coins into amazing rewards!</p>
+            <label for="redeemAmount">🪙 Enter coins to redeem</label>
+            <input type="number" id="redeemAmount" placeholder="Minimum 50 coins" min="50">
+            <p style="font-size: 13px; color: var(--text-secondary);">1 Coin = $0.10 USD</p>
+            <div class="modal-buttons">
+                <button class="btn btn-cancel" onclick="closeModal('redeemModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="processRedeem()">Redeem Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Calculate coins based on profile data
+        function calculateCoins() {
+            let vibes = parseInt(localStorage.getItem('vibes')) || 12;
+            let videos = parseInt(localStorage.getItem('videos')) || 0;
+            let totalCoins = 0;
+
+            if(vibes > 0) {
+                totalCoins = 1 + (vibes - 1) * 0.5;
+            }
+
+            for(let i = 1; i <= videos; i++) {
+                if(i === 1) totalCoins += 2;
+                else if(i === 2) totalCoins += 1;
+                else if(i === 3) totalCoins += 2;
+                else totalCoins += Math.max(1, 2.4/i);
+            }
+
+            return Math.floor(totalCoins * 10) / 10;
+        }
+
+        // Initialize
+        let notificationsEnabled = true;
+
+        window.onload = function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme, false);
+            
+            const username = localStorage.getItem('username') || 'traveler_john';
+            const email = localStorage.getItem('userEmail') || 'traveler@travelo.com';
+            
+            document.getElementById('userName').textContent = username;
+            document.getElementById('emailDisplay').textContent = email;
+            
+            const currentCoins = calculateCoins();
+            const redeemedCoins = parseInt(localStorage.getItem('redeemedCoins')) || 30;
+            const deductedCoins = parseInt(localStorage.getItem('deductedCoins')) || 6;
+            
+            document.getElementById('currentCoins').textContent = currentCoins;
+            document.getElementById('redeemedCoins').textContent = redeemedCoins;
+            document.getElementById('deductedCoins').textContent = `-${deductedCoins}`;
+
+            notificationsEnabled = localStorage.getItem('notifications') !== 'false';
+            if (!notificationsEnabled) {
+                document.getElementById('notifToggle').classList.remove('active');
+            }
+        };
+
+        function toggleDropdown(id, element) {
+            const dropdown = document.getElementById(id);
+            const arrow = element.querySelector('.arrow');
+            const isOpen = dropdown.classList.contains('open');
+            
+            document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+            document.querySelectorAll('.settings-item .arrow').forEach(a => a.classList.remove('open'));
+            
+            if (!isOpen) {
+                dropdown.classList.add('open');
+                arrow.classList.add('open');
+            }
+        }
+
+        function setTheme(theme, showNotif = true) {
+            document.body.className = theme + '-mode';
+            if (theme === 'happy') document.body.className = 'happy-theme';
+            if (theme === 'forest') document.body.className = 'forest-theme';
+            if (theme === 'night') document.body.className = 'night-theme';
+            if (theme === 'sunrise') document.body.className = 'sunrise-theme';
+            
+            localStorage.setItem('theme', theme);
+            if (showNotif) {
+                showNotification(`✨ Theme changed to ${theme} mode!`);
+            }
+        }
+
+        function togglePrivacy(element) {
+            const content = document.getElementById('privacyContent');
+            const arrow = element.querySelector('.arrow');
+            content.classList.toggle('show');
+            arrow.classList.toggle('open');
+        }
+
+        function toggleNotifications() {
+            notificationsEnabled = !notificationsEnabled;
+            const toggle = document.getElementById('notifToggle');
+            toggle.classList.toggle('active');
+            localStorage.setItem('notifications', notificationsEnabled);
+            showNotification(notificationsEnabled ? '🔔 Notifications enabled!' : '🔕 Notifications disabled!');
+        }
+
+        function togglePublicAccount(event) {
+            event.stopPropagation();
+            const toggle = document.getElementById('publicToggle');
+            toggle.classList.toggle('active');
+            const isPublic = toggle.classList.contains('active');
+            showNotification(isPublic ? '🌍 Account is now Public' : '🔒 Account is now Private');
+        }
+
+        function toggleActivityStatus(event) {
+            event.stopPropagation();
+            const toggle = document.getElementById('activityToggle');
+            toggle.classList.toggle('active');
+            const isActive = toggle.classList.contains('active');
+            showNotification(isActive ? '✅ Activity status visible' : '❌ Activity status hidden');
+        }
+
+        function toggleProfileView(event) {
+            event.stopPropagation();
+            const toggle = document.getElementById('profileViewToggle');
+            toggle.classList.toggle('active');
+            const isAllowed = toggle.classList.contains('active');
+            showNotification(isAllowed ? '👁️ Profile views allowed' : '🚫 Profile views restricted');
+        }
+
+        function showNotification(message) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3000);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showDeleteModal() {
+            document.getElementById('deleteModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function deleteAccount() {
+            showNotification('🗑️ Account deleted successfully!');
+            closeModal('deleteModal');
+            setTimeout(() => {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+
+        function openContactModal() {
+            document.getElementById('contactModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function submitContact(event) {
+            event.preventDefault();
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+            
+            // Create mailto link to send email to bargavraj@gmail.com
+            const subject = encodeURIComponent('Travelo Support - Message from ' + email);
+            const body = encodeURIComponent('From: ' + email + '\n\n' + message);
+            const mailtoLink = `mailto:bargavraj@gmail.com?subject=${subject}&body=${body}`;
+            
+            window.location.href = mailtoLink;
+            
+            closeModal('contactModal');
+            showNotification('📧 Opening your email client...');
+            
+            document.getElementById('contactForm').reset();
+        }
+
+        function openRedeemModal() {
+            const currentCoins = parseFloat(document.getElementById('currentCoins').textContent);
+            if (currentCoins < 50) {
+                showNotification('⚠️ Minimum 50 coins required to redeem!');
+                return;
+            }
+            document.getElementById('redeemModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function processRedeem() {
+            const redeemAmount = parseInt(document.getElementById('redeemAmount').value);
+            const currentCoins = parseFloat(document.getElementById('currentCoins').textContent);
+            
+            if (!redeemAmount || redeemAmount < 50) {
+                showNotification('⚠️ Minimum 50 coins required!');
+                return;
+            }
+            
+            if (redeemAmount > currentCoins) {
+                showNotification('⚠️ Insufficient coins!');
+                return;
+            }
+            
+            // Update coins
+            const newCurrentCoins = currentCoins - redeemAmount;
+            const redeemedCoins = parseInt(document.getElementById('redeemedCoins').textContent);
+            const newRedeemedCoins = redeemedCoins + redeemAmount;
+            
+            document.getElementById('currentCoins').textContent = newCurrentCoins;
+            document.getElementById('redeemedCoins').textContent = newRedeemedCoins;
+            
+            localStorage.setItem('redeemedCoins', newRedeemedCoins);
+            
+            const usdValue = (redeemAmount * 0.10).toFixed(2);
+            
+            closeModal('redeemModal');
+            showNotification(`🎉 Successfully redeemed ${redeemAmount} coins! (${usdValue} USD)`);
+            
+            document.getElementById('redeemAmount').value = '';
+        }
+
+        function navigateTo(page) {
+            showNotification(`📂 Opening ${page}...`);
+            setTimeout(() => {
+                window.location.href = page + '.html';
+            }, 500);
+        }
+
+        function openProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function showEmail() {
+            const email = document.getElementById('emailDisplay').textContent;
+            alert(`📧 Your Registered Email\n\n${email}\n\nYou can update your email in account settings.`);
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Close modals on click outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

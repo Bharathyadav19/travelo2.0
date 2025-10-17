@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travelo 2.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="menu-icon" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="app-title">Travelo 2.0</div>
+        <div class="nav-icons">
+            <a class="icon-btn" href="#" id="notificationLink">
+                <svg viewBox="0 0 24 24">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="notification-dot"></span>
+            </a>
+            <a class="icon-btn" href="#" id="messageLink">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Menu</div>
+        </div>
+        <div class="sidebar-menu">
+            <a href="search.html" class="menu-item">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                <span>Search</span>
+            </a>
+            <a href="ARhome.html" class="menu-item">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                <span>AR Experience</span>
+            </a>
+            <a href="reward.html" class="menu-item">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                <span>Rewards</span>
+            </a>
+            <a href="dailychalleng.html" class="menu-item">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>Daily Challenges</span>
+            </a>
+            <a href="explore.html" class="menu-item">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                <span>Explore</span>
+            </a>
+            <a href="profile.html" class="menu-item">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Profile</span>
+            </a>
+            <a href="seeting.html" class="menu-item">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 6v6m5.2-14.8L13 8.4m-2 7.2l-4.2 4.2m12-4.2L14.8 11m-5.6-2L4.8 4.8"></path></svg>
+                <span>Settings</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Plus Floating Button -->
+    <button id="plusBtn" aria-label="Show more options">+</button>
+    <nav id="plusPopup" aria-label="Plus menu">
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>Dressing Choice</a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>AI Assistance</a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>AI Chatbot</a>
+    </nav>
+
+    <!-- Mood Section -->
+    <div class="mood-section">
+        <h2 class="mood-title">How are you feeling today?</h2>
+        <div class="mood-slider-container">
+            <input type="range" min="0" max="100" value="50" class="mood-slider" id="moodSlider">
+        </div>
+        <div class="mood-labels">
+            <span>😊 Happy</span>
+            <span>😐 Natural</span>
+            <span>😔 Calm</span>
+        </div>
+    </div>
+
+    <!-- Places Section -->
+    <div class="places-section">
+        <div class="section-header">
+            <h2 class="section-title" id="moodTitle">Places Near You</h2>
+        </div>
+
+        <!-- Happy Mood Places -->
+        <div class="mood-category active" id="happy-places">
+            <div class="places-carousel">
+                <div class="places-scroll">
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1555939594-58d7cb561404?w=600&q=80" class="place-image" alt="Food Court">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header">
+                                    <span class="distance-badge">0.5 km away</span>
+                                </div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">NIE North Food Court</h3>
+                                    <p class="place-location">📍 NIE North, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Enjoy delicious food and hang out with friends.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">5.2K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.7</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">450</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600&q=80" class="place-image" alt="BEML">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">1.2 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">BEML Shopping Complex</h3>
+                                    <p class="place-location">📍 BEML, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Shop and enjoy entertainment at this complex.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">8.3K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.6</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">620</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80" class="place-image" alt="Infosys">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">2.8 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">Infosys Tech Park</h3>
+                                    <p class="place-location">📍 Infosys, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Explore the modern tech campus.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">3.1K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.8</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">280</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&q=80" class="place-image" alt="Bastipura">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">1.8 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">Bastipura Market</h3>
+                                    <p class="place-location">📍 Bastipura, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Experience local culture and street food.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">6.8K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.5</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">540</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Natural Mood Places -->
+        <div class="mood-category" id="natural-places">
+            <div class="places-carousel">
+                <div class="places-scroll">
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1570129477492-45a003537e1d?w=600&q=80" class="place-image" alt="Hostel">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">0.3 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">NIE North Hostel</h3>
+                                    <p class="place-location">📍 NIE North, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Relax in a comfortable hostel environment.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">2.5K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.4</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">180</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=600&q=80" class="place-image" alt="College">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">0.1 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">NIE North College</h3>
+                                    <p class="place-location">📍 NIE North, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Explore the serene college campus.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">1.8K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.7</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">150</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80" class="place-image" alt="Park">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">1.5 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">BEML Park & Gardens</h3>
+                                    <p class="place-location">📍 BEML, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Walk through scenic gardens.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">4.2K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.6</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">320</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" class="place-image" alt="Green">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">2.9 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">Infosys Green Space</h3>
+                                    <p class="place-location">📍 Infosys, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Relax in calm green spaces.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">2.7K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.8</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">210</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calm Mood Places -->
+        <div class="mood-category" id="sad-places">
+            <div class="places-carousel">
+                <div class="places-scroll">
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-150784272343-583f20270319?w=600&q=80" class="place-image" alt="Library">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">0.2 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">NIE North Library</h3>
+                                    <p class="place-location">📍 NIE North, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Find solace in the quiet library.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">3.5K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.8</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">220</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=80" class="place-image" alt="Temple">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">2.0 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">Bastipura Temple</h3>
+                                    <p class="place-location">📍 Bastipura, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Find spiritual peace and meditation.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">2.8K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.9</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">165</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80" class="place-image" alt="Wellness">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">1.4 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">BEML Wellness Center</h3>
+                                    <p class="place-location">📍 BEML, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Therapeutic wellness treatments.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">2.1K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">4.9</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">140</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="place-card">
+                        <div class="place-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80" class="place-image" alt="Meditation">
+                            <div class="place-gradient"></div>
+                            <div class="place-content">
+                                <div class="place-header"><span class="distance-badge">3.1 km away</span></div>
+                                <div class="place-info-overlay">
+                                    <h3 class="place-title">Infosys Meditation Hall</h3>
+                                    <p class="place-location">📍 Infosys, Bangalore</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="accept-btn-overlay" onclick="acceptChallenge(this)"><span class="plus-icon">+</span> Accept Challenge</button>
+                        <div class="place-details">
+                            <p class="details-text">Practice meditation and mindfulness.</p>
+                            <div class="place-stats">
+                                <div class="stat-box"><div class="stat-value">1.9K</div><div class="stat-label">Visitors</div></div>
+                                <div class="stat-box"><div class="stat-value">5.0</div><div class="stat-label">Rating</div></div>
+                                <div class="stat-box"><div class="stat-value">95</div><div class="stat-label">Recent</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="ar.html" class="nav-item">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <polyline points="9 11 12 14 15 11"></polyline>
+            </svg>
+            <span>AR</span>
+        </a>
+        <a href="rewards.html" class="nav-item">
+            <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
+            <span>Rewards</span>
+        </a>
+        <a href="explore.html" class="nav-item">
+            <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+            <span>Explore</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        const plusBtn = document.getElementById('plusBtn');
+        const plusPopup = document.getElementById('plusPopup');
+
+        plusBtn.addEventListener('click', () => {
+            plusPopup.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#plusBtn') && !e.target.closest('#plusPopup')) {
+                plusPopup.classList.remove('active');
+            }
+        });
+
+        const moodSlider = document.getElementById('moodSlider');
+        const moodTitle = document.getElementById('moodTitle');
+
+        moodSlider.addEventListener('input', () => {
+            const value = parseInt(moodSlider.value);
+            document.getElementById('happy-places').classList.remove('active');
+            document.getElementById('natural-places').classList.remove('active');
+            document.getElementById('sad-places').classList.remove('active');
+
+            if (value > 65) {
+                document.getElementById('happy-places').classList.add('active');
+                moodTitle.textContent = '🎉 Happy Places Near You';
+            } else if (value < 35) {
+                document.getElementById('sad-places').classList.add('active');
+                moodTitle.textContent = '🧘 Calm Places Near You';
+            } else {
+                document.getElementById('natural-places').classList.add('active');
+                moodTitle.textContent = '🌿 Natural Places Near You';
+            }
+        });
+
+ function acceptChallenge(button) {
+    // Visual feedback
+    button.textContent = '✓ Accepted!';
+    button.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    
+    // Navigate after a brief delay for visual feedback
+    setTimeout(() => {
+        window.location.href = 'armap.html';
+    }, 300);
+}
+
+</script>
+
+</body>
+</html>

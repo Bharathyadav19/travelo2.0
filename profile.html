@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Travelo Profile</title>
+<link rel="stylesheet" href="profile.css">
+</head>
+
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1><a href="index.html">Travelo</a></h1>
+    <div class="header-right">
+      <div class="stat-badge">
+        <span class="icon">💰</span>
+        <span class="number" id="coinCount">0</span> Coins
+      </div>
+      <div class="stat-badge">
+        <span id="currentBadge">Bronze III</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Section -->
+  <div class="profile-container">
+    <div class="profile-header">
+      <div class="profile-avatar" id="profileAvatar">
+        <img src="https://preview.redd.it/pbtzaghedwd61.png?width=1000&format=png&auto=webp&s=1cdded55f9787627ea8e74e61de8759e242d762e" alt="Profile Picture" />
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-name-section">
+          <h1 class="profile-name">traveler_john</h1>
+          <div class="badge-icon" onclick="openBadgeModal()">B3</div>
+          <div class="profile-actions" style="margin-left:auto;">
+            <button class="upload-btn" onclick="openUploadModal()">Upload</button>
+            <button class="edit-btn" onclick="openEditModal()">Edit Profile</button>
+          </div>
+        </div>
+
+        <div class="profile-stats">
+          <div><strong id="vibeCount">12</strong> vibes</div>
+          <div><strong id="squadCount">1,200</strong> squad</div>
+          <div><strong id="inspoCount">580</strong> inspo</div>
+        </div>
+
+        <p class="profile-bio">
+          🌍 Full-time wanderer ✈️ Sharing travel tips & adventures 📸
+          Capture moments
+        </p>
+      </div>
+    </div>
+
+    <nav class="profile-nav">
+      <a href="#vibes" class="active" onclick="switchTab(event, 'vibes')">Vibes</a>
+      <a href="#videos" onclick="switchTab(event, 'videos')">Videos</a>
+    </nav>
+
+    <div id="vibes" class="tab-content active">
+      <div class="profile-posts" id="vibePosts">
+        <div class="post-item">
+          <img src="https://source.unsplash.com/random/400x400?travel" alt="Vibe" />
+          <div class="post-menu" onclick="togglePostMenu(event)">⋮</div>
+          <div class="dropdown-menu">
+            <div onclick="sharePost(this)">Share</div>
+            <div onclick="savePost(this)">Save</div>
+            <div onclick="deletePost(this)">Delete</div>
+          </div>
+        </div>
+        <div class="post-item">
+          <img src="https://source.unsplash.com/random/400x400?nature" alt="Vibe" />
+          <div class="post-menu" onclick="togglePostMenu(event)">⋮</div>
+          <div class="dropdown-menu">
+            <div onclick="sharePost(this)">Share</div>
+            <div onclick="savePost(this)">Save</div>
+            <div onclick="deletePost(this)">Delete</div>
+          </div>
+        </div>
+        <div class="post-item">
+          <img src="https://source.unsplash.com/random/400x400?adventure" alt="Vibe" />
+          <div class="post-menu" onclick="togglePostMenu(event)">⋮</div>
+          <div class="dropdown-menu">
+            <div onclick="sharePost(this)">Share</div>
+            <div onclick="savePost(this)">Save</div>
+            <div onclick="deletePost(this)">Delete</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="videos" class="tab-content">
+      <div class="profile-posts" id="videoPosts"></div>
+    </div>
+  </div>
+
+  <!-- Explore Section -->
+  <div class="explore-section">
+    <h2>Explore Similar Travelers</h2>
+    <div class="slider-container">
+      <button class="slider-btn left" aria-label="Scroll left" onclick="scrollExplore(-200)">‹</button>
+      <div class="similar-users" id="similarUsersSlider" tabindex="0" aria-label="Similar travelers slider">
+        <div class="similar-user" tabindex="0">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User A" />
+          <p>wanderlust_amy</p>
+        </div>
+        <div class="similar-user" tabindex="0">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User B" />
+          <p>globetrotter_joe</p>
+        </div>
+        <div class="similar-user" tabindex="0">
+          <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="User C" />
+          <p>travelbug_liz</p>
+        </div>
+        <div class="similar-user" tabindex="0">
+          <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="User D" />
+          <p>adventure_dan</p>
+        </div>
+        <div class="similar-user" tabindex="0">
+          <img src="https://randomuser.me/api/portraits/men/50.jpg" alt="User E" />
+          <p>nomad_jake</p>
+        </div>
+        <div class="similar-user" tabindex="0">
+          <img src="https://randomuser.me/api/portraits/women/12.jpg" alt="User F" />
+          <p>voyager_nina</p>
+        </div>
+      </div>
+      <button class="slider-btn right" aria-label="Scroll right" onclick="scrollExplore(200)">›</button>
+    </div>
+  </div>
+
+  <!-- Badge Modal -->
+  <div id="badgeModal" class="modal-overlay" onclick="closeBadgeModal(event)" role="dialog" aria-modal="true" aria-labelledby="badgeTitle">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="close-modal" onclick="closeBadgeModal()" aria-label="Close badge modal">&times;</button>
+      <h2 id="badgeTitle">Badge System 🏆</h2>
+      <div class="badge-list">
+        <p><strong>Bronze III:</strong> Starting badge - <span style="color:#b2dffb;">B3</span></p>
+        <p><strong>Bronze II:</strong> 100 squad, 8 vibes, 2 videos - <span style="color:#66aaff;">B2</span></p>
+        <p><strong>Bronze I:</strong> 300 squad - <span style="color:#3399ff;">B1</span></p>
+        <p><strong>Silver III:</strong> 500 squad - <span style="color:#5cc1ff;">S3</span></p>
+        <p><strong>Silver II:</strong> 1,000 squad - <span style="color:#2a85ff;">S2</span></p>
+        <p><strong>Silver I:</strong> 1,000+ squad - <span style="color:#0066cc;">S1</span></p>
+        <p><strong>Gold III:</strong> 5,000 squad - <span style="color:#ffcc66;">G3</span></p>
+        <p><strong>Gold II - Gold I:</strong> 5,000+ squad - <span style="color:#ffb300;">G2/G1</span></p>
+        <p><strong>Platinum III - Platinum I:</strong> 10,000+ squad - <span style="color:#66ccff;">P3 - P1</span></p>
+        <p><strong>Legend:</strong> 1,000,000 squad, 2,000 vibes, 500 videos - <span style="color:#ffd700;">L</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Profile Modal -->
+  <div id="editModal" class="modal-overlay" onclick="closeEditModal(event)" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="close-modal" onclick="closeEditModal()" aria-label="Close edit profile modal">&times;</button>
+      <h2 id="editTitle">Edit Profile</h2>
+      <form id="editProfileForm" onsubmit="saveProfileChanges(event)">
+        <label for="avatarUploadInput">Change Profile Photo</label>
+        <input type="file" id="avatarUploadInput" accept="image/*" />
+
+        <label for="usernameInput">Username</label>
+        <input type="text" id="usernameInput" placeholder="Username" required />
+
+        <label for="bioInput">Bio</label>
+        <textarea id="bioInput" placeholder="Bio" rows="4" required></textarea>
+
+        <label for="dobInput">Date of Birth</label>
+        <input type="date" id="dobInput" />
+
+        <button type="submit">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Upload Options -->
+  <div id="uploadOptions">
+    <div class="upload-option" onclick="document.getElementById('vibeUpload').click()">Upload Vibe</div>
+    <div class="upload-option" onclick="document.getElementById('videoUpload').click()">Upload Video</div>
+  </div>
+
+  <input type="file" id="vibeUpload" accept="image/*" hidden />
+  <input type="file" id="videoUpload" accept="video/*" hidden />
+
+  <script>
+    // Data variables
+    let vibes = 12;
+    let videos = 0;
+    let squad = 1200;
+
+    // Cached elements
+    const profileAvatarEl = document.getElementById('profileAvatar');
+    const vibeCountEl = document.getElementById('vibeCount');
+    const squadCountEl = document.getElementById('squadCount');
+    const coinCountEl = document.getElementById('coinCount');
+    const badgeIconEl = document.querySelector('.badge-icon');
+    const badgeTextEl = document.getElementById('currentBadge');
+
+    /* Calculate coins:
+      1 coin for first vibe, then 0.5 per each additional vibe
+      For videos: 2 for 1st, 1 for 2nd, 2 for 3rd, else max(1, 2.4/i)
+    */
+    function calculateCoins() {
+      let totalCoins = 0;
+
+      if(vibes > 0) {
+        totalCoins = 1 + (vibes - 1) * 0.5;
+      }
+
+      for(let i=1; i<=videos; i++) {
+        if(i === 1) totalCoins += 2;
+        else if(i === 2) totalCoins += 1;
+        else if(i === 3) totalCoins += 2;
+        else totalCoins += Math.max(1, 2.4/i);
+      }
+
+      return Math.floor(totalCoins * 10) / 10;
+    }
+
+    function updateBadge() {
+      let badge = "Bronze III";
+      let badgeIcon = "B3";
+      // Reset styles
+      badgeIconEl.style.background = "linear-gradient(135deg, #b2dffb, #80bfff)";
+      badgeIconEl.style.borderColor = "#3399ff";
+      badgeTextEl.style.color = "#0073e6";
+
+      if(squad >= 1000000 && vibes >= 2000 && videos >= 500) {
+        badge = "Legend";
+        badgeIcon = "🏅";
+        badgeIconEl.style.background = "linear-gradient(135deg, #ffd700, #ffcc00)";
+        badgeIconEl.style.borderColor = "#ffaa00";
+        badgeTextEl.style.color = "#ffd700";
+      } else if(squad >= 10000) {
+        badge = "Platinum I";
+        badgeIcon = "💎";
+        badgeIconEl.style.background = "linear-gradient(135deg, #c0e8ff, #7fcaff)";
+        badgeIconEl.style.borderColor = "#5bc0de";
+        badgeTextEl.style.color = "#007acc";
+      } else if(squad >= 5000) {
+        badge = "Gold I";
+        badgeIcon = "🥇";
+        badgeIconEl.style.background = "linear-gradient(135deg, #ffe699, #ffcc00)";
+        badgeIconEl.style.borderColor = "#ffb700";
+        badgeTextEl.style.color = "#cc9900";
+      } else if(squad >= 1000) {
+        badge = "Silver I";
+        badgeIcon = "🥈";
+        badgeIconEl.style.background = "linear-gradient(135deg, #d6d6d6, #a6a6a6)";
+        badgeIconEl.style.borderColor = "#999999";
+        badgeTextEl.style.color = "#666666";
+      } else if(squad >= 500) {
+        badge = "Silver III";
+        badgeIcon = "S3";
+        badgeIconEl.style.background = "linear-gradient(135deg, #e0e0e0, #bfbfbf)";
+        badgeIconEl.style.borderColor = "#b0b0b0";
+        badgeTextEl.style.color = "#555555";
+      } else if(squad >= 300) {
+        badge = "Bronze I";
+        badgeIcon = "B1";
+        badgeIconEl.style.background = "linear-gradient(135deg, #b2dffb, #80bfff)";
+        badgeIconEl.style.borderColor = "#3399ff";
+        badgeTextEl.style.color = "#0073e6";
+      } else if(squad >= 100 && vibes >= 8 && videos >= 2) {
+        badge = "Bronze II";
+        badgeIcon = "B2";
+        badgeIconEl.style.background = "linear-gradient(135deg, #99c7f6, #4d94ff)";
+        badgeIconEl.style.borderColor = "#297fe5";
+        badgeTextEl.style.color = "#005bb5";
+      }
+
+      badgeTextEl.textContent = badge;
+      badgeIconEl.textContent = badgeIcon;
+    }
+
+    function updateStats() {
+      vibeCountEl.textContent = vibes;
+      squadCountEl.textContent = squad.toLocaleString();
+      coinCountEl.textContent = calculateCoins();
+      updateBadge();
+    }
+
+    // Toggle three-dot menu on posts
+    function togglePostMenu(event) {
+      event.stopPropagation();
+      closeAllMenus(); // Close others first
+
+      const menu = event.target.nextElementSibling;
+      if(menu) menu.classList.toggle('active');
+    }
+    // Close all menus helper
+    function closeAllMenus() {
+      document.querySelectorAll('.dropdown-menu.active').forEach(menu => menu.classList.remove('active'));
+    }
+    document.addEventListener('click', () => closeAllMenus());
+
+    // Share, Save alert placeholders
+    function sharePost(target) {
+      alert('Share option clicked');
+      closeAllMenus();
+    }
+    function savePost(target) {
+      alert('Save option clicked');
+      closeAllMenus();
+    }
+
+    // Delete post logic
+    function deletePost(target) {
+      closeAllMenus();
+      const post = target.closest('.post-item');
+      if(!post) return;
+      const isVibe = post.parentElement.id === 'vibePosts';
+
+      post.remove();
+
+      if(isVibe) {
+        vibes = Math.max(0, vibes - 1);
+      } else {
+        videos = Math.max(0, videos - 1);
+      }
+      updateStats();
+    }
+
+    // Open modals
+    function openUploadModal() {
+      const uploadOptions = document.getElementById('uploadOptions');
+      const rect = document.querySelector('.upload-btn').getBoundingClientRect();
+      uploadOptions.style.display = 'block';
+      uploadOptions.style.top = `${rect.bottom + 10}px`;
+      uploadOptions.style.left = `${rect.left}px`;
+    }
+
+    function switchTab(event, tabName) {
+      event.preventDefault();
+      document.querySelectorAll('.profile-nav a').forEach(a => a.classList.remove('active'));
+      event.target.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(tab =>
+        tab.classList.remove('active')
+      );
+      document.getElementById(tabName).classList.add('active');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (
+        !e.target.closest('#uploadOptions') &&
+        !e.target.closest('.upload-btn') &&
+        !e.target.closest('.post-menu') &&
+        !e.target.closest('.dropdown-menu')
+      ) {
+        document.getElementById('uploadOptions').style.display = 'none';
+        closeAllMenus();
+      }
+    });
+
+    // Upload vibe with menu options
+    document.getElementById('vibeUpload').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function () {
+          const postItem = document.createElement('div');
+          postItem.className = 'post-item';
+
+          const img = document.createElement('img');
+          img.src = reader.result;
+          postItem.appendChild(img);
+
+          // Create 3-dot menu
+          const menuDot = document.createElement('div');
+          menuDot.className = 'post-menu';
+          menuDot.textContent = '⋮';
+          menuDot.onclick = togglePostMenu;
+          postItem.appendChild(menuDot);
+
+          const dropdown = document.createElement('div');
+          dropdown.className = 'dropdown-menu';
+          dropdown.innerHTML = `<div onclick="sharePost(this)">Share</div>
+                                <div onclick="savePost(this)">Save</div>
+                                <div onclick="deletePost(this)">Delete</div>`;
+          postItem.appendChild(dropdown);
+
+          document.getElementById('vibePosts').appendChild(postItem);
+          vibes++;
+          updateStats();
+
+          // Dispatch event or handle adding to home page
+          const event = new CustomEvent('newVibePost', { detail: { src: reader.result } });
+          window.dispatchEvent(event);
+        };
+        reader.readAsDataURL(file);
+        document.getElementById('uploadOptions').style.display = 'none';
+      }
+    });
+
+    // Upload video with menu options
+    document.getElementById('videoUpload').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const videoItem = document.createElement('div');
+        videoItem.className = 'post-item';
+
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(file);
+        video.controls = true;
+        videoItem.appendChild(video);
+
+        const menuDot = document.createElement('div');
+        menuDot.className = 'post-menu';
+        menuDot.textContent = '⋮';
+        menuDot.onclick = togglePostMenu;
+        videoItem.appendChild(menuDot);
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'dropdown-menu';
+        dropdown.innerHTML = `<div onclick="sharePost(this)">Share</div>
+                              <div onclick="savePost(this)">Save</div>
+                              <div onclick="deletePost(this)">Delete</div>`;
+        videoItem.appendChild(dropdown);
+
+        document.getElementById('videoPosts').appendChild(videoItem);
+        videos++;
+        updateStats();
+
+        document.getElementById('uploadOptions').style.display = 'none';
+      }
+    });
+
+    // Edit profile modal open/close
+    function openEditModal() {
+      // Load current values to inputs
+      document.getElementById('usernameInput').value = document.querySelector('.profile-name').textContent;
+      document.getElementById('bioInput').value = document.querySelector('.profile-bio').textContent;
+      // Date of birth not shown in UI; default blank
+      document.getElementById('dobInput').value = localStorage.getItem('dobInput') || '';
+
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeEditModal(event) {
+      if (
+        !event ||
+        event.target.classList.contains('modal-overlay') ||
+        event.target.classList.contains('close-modal')
+      ) {
+        document.getElementById('editModal').classList.remove('active');
+      }
+    }
+
+    // Clicking profile photo opens edit profile modal
+    profileAvatarEl.addEventListener('click', openEditModal);
+
+    // Handle profile photo change in edit modal preview
+    document.getElementById('avatarUploadInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          profileAvatarEl.querySelector('img').src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Save profile changes
+    function saveProfileChanges(e) {
+      e.preventDefault();
+
+      // Username
+      const newUsername = document.getElementById('usernameInput').value.trim();
+      if(newUsername) {
+        document.querySelector('.profile-name').textContent = newUsername;
+      }
+
+      // Bio
+      const newBio = document.getElementById('bioInput').value.trim();
+      if(newBio) {
+        document.querySelector('.profile-bio').textContent = newBio;
+      }
+
+      // Date of birth saved in localStorage (as example, can be enhanced)
+      const dob = document.getElementById('dobInput').value;
+      if(dob) {
+        localStorage.setItem('dobInput', dob);
+      }
+
+      closeEditModal();
+    }
+
+    // Badge modal open/close
+    function openBadgeModal() {
+      document.getElementById('badgeModal').classList.add('active');
+    }
+    function closeBadgeModal(event) {
+      if (
+        !event ||
+        event.target.classList.contains('modal-overlay') ||
+        event.target.classList.contains('close-modal')
+      ) {
+        document.getElementById('badgeModal').classList.remove('active');
+      }
+    }
+
+    // Explore slider scroll function
+    function scrollExplore(distance) {
+      const slider = document.getElementById('similarUsersSlider');
+      slider.scrollBy({ left: distance, behavior: 'smooth' });
+    }
+
+    updateStats();
+// On vibe upload (image)
+localStorage.setItem('newVibePost', reader.result);
+
+// On video upload
+localStorage.setItem('newVideoPost', videoURL);
+
+
+  </script>
+</body>
+</html>

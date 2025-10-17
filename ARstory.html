@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Story Studio Pro</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0f1419;
+            overflow: hidden;
+            height: 100vh;
+            position: fixed;
+            width: 100%;
+        }
+
+        /* New Landing Screen */
+        .landing-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .landing-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        .landing-icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .landing-title {
+            color: white;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .landing-subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 16px;
+            margin-bottom: 50px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .landing-btn {
+            padding: 18px 50px;
+            background: white;
+            color: #1e3c72;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .landing-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Main Story Canvas */
+        .story-canvas {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .story-canvas.active {
+            display: flex;
+        }
+
+        .media-display {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            transition: all 0.3s ease;
+        }
+
+        #mainMedia, #mainVideo {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: none;
+            transition: filter 0.3s ease;
+        }
+
+        #mainMedia.active, #mainVideo.active {
+            display: block;
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 15px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .close-btn, .settings-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:active, .settings-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Upload Options Overlay */
+        .upload-options {
+            position: absolute;
+            top: 80px;
+            right: 15px;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 15px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 150;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .upload-options.active {
+            display: flex;
+        }
+
+        .upload-option-btn {
+            padding: 15px 25px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .upload-option-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .upload-option-btn:active {
+            transform: scale(0.95);
+        }
+
+        .drawing-tools {
+            position: absolute;
+            top: 80px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 99;
+        }
+
+        .tool-btn {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 50%;
+            color: #000;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .tool-btn:active {
+            transform: scale(0.9);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .add-media-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 24px;
+        }
+
+        /* Stickers Modal - Compact */
+        .stickers-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 200;
+            display: none;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .stickers-modal.active {
+            display: block;
+        }
+
+        .stickers-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 60px;
+        }
+
+        .sticker-btn {
+            aspect-ratio: 1;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 12px;
+            font-size: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .sticker-btn:active {
+            transform: scale(1.2);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .draggable-text {
+            position: absolute;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 12px 20px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            cursor: move;
+            z-index: 50;
+            user-select: none;
+            text-align: center;
+            min-width: 150px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .draggable-text input {
+            background: transparent;
+            border: none;
+            color: inherit;
+            font-size: 28px;
+            font-weight: bold;
+            outline: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        .draggable-sticker {
+            position: absolute;
+            cursor: move;
+            z-index: 49;
+            user-select: none;
+            font-size: 60px;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            background: #e74c3c;
+            border: 2px solid white;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 60;
+        }
+
+        .action-buttons {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 97;
+        }
+
+        .submit-story-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 4px solid white;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .submit-story-btn:active {
+            transform: scale(0.9);
+        }
+
+        .recording-indicator {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 101;
+            animation: pulse 1.5s infinite;
+        }
+
+        .recording-indicator.active {
+            display: flex;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .rec-dot {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+        }
+
+        .success-overlay.active {
+            display: flex;
+        }
+
+        .success-content {
+            text-align: center;
+            color: white;
+        }
+
+        .success-icon {
+            font-size: 100px;
+            margin-bottom: 20px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .success-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .success-subtext {
+            font-size: 16px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Crop Modal */
+        .crop-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.98);
+            z-index: 250;
+            display: none;
+            flex-direction: column;
+        }
+
+        .crop-modal.active {
+            display: flex;
+        }
+
+        .crop-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .crop-container img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .crop-controls {
+            padding: 20px;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+        }
+
+        .crop-btn {
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .crop-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+        }
+
+        .crop-btn:active {
+            transform: scale(0.95);
+        }
+
+        .text-input-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            padding: 30px 20px;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 200;
+            display: none;
+        }
+
+        .text-input-modal.active {
+            display: block;
+            transform: translateY(0);
+        }
+
+        .text-input-field {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            font-size: 18px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-option.selected {
+            border-color: white;
+            transform: scale(1.15);
+        }
+
+        .font-styles {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .font-style-btn {
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .font-style-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+        }
+
+        .text-style-classic { font-family: 'Helvetica', sans-serif; }
+        .text-style-modern { font-family: 'Arial Black', sans-serif; }
+        .text-style-elegant { font-family: 'Georgia', serif; font-style: italic; }
+        .text-style-typewriter { font-family: 'Courier New', monospace; }
+
+        @media (max-width: 480px) {
+            .draggable-text {
+                font-size: 22px;
+                padding: 10px 15px;
+            }
+            .draggable-text input {
+                font-size: 22px;
+            }
+            .draggable-sticker {
+                font-size: 50px;
+            }
+            .stickers-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Screen -->
+    <div class="landing-screen" id="landingScreen">
+        <div class="landing-icon">☁️</div>
+        <div class="landing-title">AR Stories</div>
+        <div class="landing-subtitle">Tap to capture or upload your moment</div>
+        <button class="landing-btn" onclick="startApp()">
+            📸 Start Creating
+        </button>
+    </div>
+
+    <!-- Main Story Canvas -->
+    <div class="story-canvas" id="storyCanvas">
+        <div class="media-display" id="mediaDisplay">
+            <img id="mainMedia" alt="Story Media">
+            <video id="mainVideo" controls></video>
+        </div>
+
+        <div class="top-bar">
+            <button class="close-btn" onclick="closeStory()">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="settings-btn" onclick="toggleUploadOptions()">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+
+        <!-- Upload Options -->
+        <div class="upload-options" id="uploadOptions">
+            <button class="upload-option-btn" onclick="uploadImage()">
+                <i class="fas fa-image"></i> Upload Image
+            </button>
+            <button class="upload-option-btn" onclick="uploadVideo()">
+                <i class="fas fa-video"></i> Upload Video
+            </button>
+            <button class="upload-option-btn" onclick="uploadARImage()">
+                <i class="fas fa-cube"></i> AR Image
+            </button>
+            <button class="upload-option-btn" onclick="uploadARVideo()">
+                <i class="fas fa-vr-cardboard"></i> AR Video
+            </button>
+        </div>
+
+        <div class="drawing-tools">
+            <button class="tool-btn add-media-btn" onclick="toggleUploadOptions()">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="tool-btn" onclick="openTextInput()" title="Add Text">
+                <i class="fas fa-font"></i>
+            </button>
+            <button class="tool-btn" onclick="openStickers()" title="Stickers">
+                <i class="fas fa-smile"></i>
+            </button>
+            <button class="tool-btn" onclick="toggleRecording()" id="recordBtn" title="Record Audio">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button class="tool-btn" onclick="openCropModal()" title="Crop">
+                <i class="fas fa-crop"></i>
+            </button>
+            <button class="tool-btn" onclick="getLocation()" title="Add Location">
+                <i class="fas fa-map-marker-alt"></i>
+            </button>
+        </div>
+
+        <div class="recording-indicator" id="recordingIndicator">
+            <div class="rec-dot"></div>
+            <span>Recording...</span>
+        </div>
+
+        <div class="action-buttons">
+            <button class="submit-story-btn" onclick="submitStory()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+
+        <input type="file" id="imageInput" accept="image/*">
+        <input type="file" id="videoInput" accept="video/*">
+        <input type="file" id="arImageInput" accept="image/*">
+        <input type="file" id="arVideoInput" accept="video/*">
+    </div>
+
+    <!-- Text Input Modal -->
+    <div class="text-input-modal" id="textInputModal">
+        <input type="text" class="text-input-field" id="textInputField" placeholder="Enter your text...">
+        
+        <div class="font-styles">
+            <button class="font-style-btn text-style-classic active" data-style="classic">Classic</button>
+            <button class="font-style-btn text-style-modern" data-style="modern">Modern</button>
+            <button class="font-style-btn text-style-elegant" data-style="elegant">Elegant</button>
+            <button class="font-style-btn text-style-typewriter" data-style="typewriter">Typewriter</button>
+        </div>
+
+        <div class="color-picker" id="colorPicker"></div>
+
+        <button class="crop-btn primary" onclick="addTextToCanvas()" style="width: 100%; margin-top: 10px;">
+            Add Text
+        </button>
+    </div>
+
+    <!-- Stickers Modal -->
+    <div class="stickers-modal" id="stickersModal">
+        <div class="top-bar">
+            <button class="close-btn" onclick="closeStickersModal()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="settings-btn" style="opacity: 0; pointer-events: none;">
+                <i class="fas fa-sliders-h"></i>
+            </button>
+        </div>
+        <div class="stickers-grid" id="stickersGrid"></div>
+    </div>
+
+    <!-- Crop Modal -->
+    <div class="crop-modal" id="cropModal">
+        <div class="crop-container">
+            <img id="cropImage" src="">
+        </div>
+        <div class="crop-controls">
+            <button class="crop-btn" onclick="closeCropModal()">Cancel</button>
+            <button class="crop-btn primary" onclick="applyCrop()">Apply Crop</button>
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-content">
+            <div class="success-icon">✨</div>
+            <div class="success-text">Story Created!</div>
+            <div class="success-subtext">Your story has been saved</div>
+        </div>
+    </div>
+
+    <script>
+        let currentMedia = null;
+        let currentMediaType = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let audioBlob = null;
+        let isRecording = false;
+        let dragElement = null;
+        let offsetX = 0, offsetY = 0;
+        let currentTextColor = '#FFFFFF';
+        let currentFontStyle = 'classic';
+        let userLocation = null;
+        let cropper = null;
+        let currentFilterIndex = 0;
+
+        const MAP_API_KEY = 'VP7oa7cZo1wqyYCjLr4N';
+
+        const colors = ['#FFFFFF', '#FF6B6B', '#4ECDC4', '#FFE66D', '#A8E6CF', '#FF8B94', '#C7CEEA', '#FFDAC1', '#000000'];
+
+        const filters = [
+            'none',
+            'grayscale(100%)',
+            'sepia(100%)',
+            'brightness(150%)',
+            'contrast(150%)',
+            'saturate(200%)',
+            'hue-rotate(90deg)',
+            'invert(100%)',
+            'sepia(50%) contrast(110%) brightness(110%)',
+            'hue-rotate(180deg) saturate(150%)'
+        ];
+
+        const stickers = ['😀', '😂', '😍', '🥰', '😎', '🤩', '🥳', '😜', '🤪', '😇', '🥺', '😭', '😤', '😱', '🤯', '😴',
+            '❤️', '💕', '💖', '💗', '💓', '💞', '💝', '💘', '💌', '💋', '💑', '💏', '👫', '💍', '🌹', '💐',
+            '🎉', '🎊', '🎈', '🎁', '🎂', '🍾', '🥂', '🍻', '🎆', '🎇', '✨', '🌟', '💫', '⭐', '🎵', '🎶',
+            '🌸', '🌺', '🌻', '🌷', '🌴', '🌵', '🌾', '🍀', '🍁', '🍂', '🍃', '🌿', '☘️', '🌱', '🌲'];
+
+        function startApp() {
+            document.getElementById('landingScreen').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('storyCanvas').classList.add('active');
+            }, 500);
+        }
+
+        function toggleUploadOptions() {
+            const options = document.getElementById('uploadOptions');
+            options.classList.toggle('active');
+        }
+
+        function uploadImage() {
+            document.getElementById('imageInput').click();
+            toggleUploadOptions();
+        }
+
+        function uploadVideo() {
+            document.getElementById('videoInput').click();
+            toggleUploadOptions();
+        }
+
+        function uploadARImage() {
+            document.getElementById('arImageInput').click();
+            toggleUploadOptions();
+        }
+
+        function uploadARVideo() {
+            document.getElementById('arVideoInput').click();
+            toggleUploadOptions();
+        }
+
+        // Handle all file inputs
+        ['imageInput', 'videoInput', 'arImageInput', 'arVideoInput'].forEach(inputId => {
+            document.getElementById(inputId).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                currentMedia = file;
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    const mediaImg = document.getElementById('mainMedia');
+                    const mediaVideo = document.getElementById('mainVideo');
+                    
+                    mediaImg.classList.remove('active');
+                    mediaVideo.classList.remove('active');
+
+                    if (file.type.startsWith('image/')) {
+                        currentMediaType = 'image';
+                        mediaImg.src = event.target.result;
+                        mediaImg.classList.add('active');
+                    } else if (file.type.startsWith('video/')) {
+                        currentMediaType = 'video';
+                        mediaVideo.src = event.target.result;
+                        mediaVideo.classList.add('active');
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // Swipe to change filters
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.getElementById('mediaDisplay').addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.getElementById('mediaDisplay').addEventListener('touchend', function(e) {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX > 0) {
+                    // Swipe right - previous filter
+                    currentFilterIndex = (currentFilterIndex - 1 + filters.length) % filters.length;
+                } else {
+                    // Swipe left - next filter
+                    currentFilterIndex = (currentFilterIndex + 1) % filters.length;
+                }
+                applyCurrentFilter();
+            }
+        });
+
+        function applyCurrentFilter() {
+            const media = currentMediaType === 'image' ? document.getElementById('mainMedia') : document.getElementById('mainVideo');
+            if (media) {
+                media.style.filter = filters[currentFilterIndex];
+            }
+        }
+
+        // Text Input Modal
+        function initColorPicker() {
+            const picker = document.getElementById('colorPicker');
+            picker.innerHTML = '';
+            
+            colors.forEach((color, index) => {
+                const div = document.createElement('div');
+                div.className = 'color-option' + (index === 0 ? ' selected' : '');
+                div.style.background = color;
+                div.onclick = () => selectColor(color, div);
+                picker.appendChild(div);
+            });
+        }
+
+        function selectColor(color, element) {
+            document.querySelectorAll('.color-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            currentTextColor = color;
+        }
+
+        function openTextInput() {
+            const modal = document.getElementById('textInputModal');
+            modal.classList.add('active');
+            document.getElementById('textInputField').focus();
+        }
+
+        function closeTextInput() {
+            const modal = document.getElementById('textInputModal');
+            modal.classList.remove('active');
+            document.getElementById('textInputField').value = '';
+        }
+
+        document.querySelectorAll('.font-style-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.font-style-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFontStyle = this.dataset.style;
+            });
+        });
+
+        function addTextToCanvas() {
+            const text = document.getElementById('textInputField').value;
+            if (!text.trim()) return;
+
+            const container = document.getElementById('mediaDisplay');
+            const textDiv = document.createElement('div');
+            textDiv.className = 'draggable-text text-style-' + currentFontStyle;
+            textDiv.style.left = '50%';
+            textDiv.style.top = '50%';
+            textDiv.style.transform = 'translate(-50%, -50%)';
+            textDiv.style.color = currentTextColor;
+            textDiv.textContent = text;
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                textDiv.remove();
+            };
+            
+            textDiv.appendChild(deleteBtn);
+            container.appendChild(textDiv);
+            
+            makeDraggable(textDiv);
+            closeTextInput();
+        }
+
+        // Stickers
+        function initStickers() {
+            const grid = document.getElementById('stickersGrid');
+            grid.innerHTML = '';
+            
+            stickers.forEach(sticker => {
+                const btn = document.createElement('button');
+                btn.className = 'sticker-btn';
+                btn.textContent = sticker;
+                btn.onclick = () => {
+                    addSticker(sticker);
+                    closeStickersModal();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function openStickers() {
+            document.getElementById('stickersModal').classList.add('active');
+        }
+
+        function closeStickersModal() {
+            document.getElementById('stickersModal').classList.remove('active');
+        }
+
+        function addSticker(emoji) {
+            const container = document.getElementById('mediaDisplay');
+            const stickerDiv = document.createElement('div');
+            stickerDiv.className = 'draggable-sticker';
+            stickerDiv.textContent = emoji;
+            stickerDiv.style.left = Math.random() * 50 + 25 + '%';
+            stickerDiv.style.top = Math.random() * 50 + 25 + '%';
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                stickerDiv.remove();
+            };
+            
+            stickerDiv.appendChild(deleteBtn);
+            container.appendChild(stickerDiv);
+            makeDraggable(stickerDiv);
+        }
+
+        // Draggable functionality
+        function makeDraggable(element) {
+            element.addEventListener('mousedown', startDrag);
+            element.addEventListener('touchstart', startDrag);
+        }
+
+        function startDrag(e) {
+            if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+                return;
+            }
+            
+            dragElement = e.currentTarget;
+            const rect = dragElement.getBoundingClientRect();
+            
+            if (e.type === 'mousedown') {
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+            } else {
+                offsetX = e.touches[0].clientX - rect.left;
+                offsetY = e.touches[0].clientY - rect.top;
+                document.addEventListener('touchmove', drag);
+                document.addEventListener('touchend', stopDrag);
+            }
+            
+            e.preventDefault();
+        }
+
+        function drag(e) {
+            if (!dragElement) return;
+            
+            const containerRect = document.getElementById('mediaDisplay').getBoundingClientRect();
+            let clientX, clientY;
+            
+            if (e.type === 'mousemove') {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            } else {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            
+            let x = clientX - containerRect.left - offsetX;
+            let y = clientY - containerRect.top - offsetY;
+            
+            dragElement.style.left = x + 'px';
+            dragElement.style.top = y + 'px';
+            dragElement.style.transform = 'none';
+        }
+
+        function stopDrag() {
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('touchend', stopDrag);
+            dragElement = null;
+        }
+
+        // Audio Recording
+        async function toggleRecording() {
+            const btn = document.getElementById('recordBtn');
+            const indicator = document.getElementById('recordingIndicator');
+            
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    
+                    mediaRecorder.ondataavailable = (e) => {
+                        audioChunks.push(e.data);
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        audioChunks = [];
+                        alert('Audio recorded successfully! It will be included in your story.');
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btn.classList.add('active');
+                    indicator.classList.add('active');
+                } catch (err) {
+                    alert('Microphone access denied');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                btn.classList.remove('active');
+                indicator.classList.remove('active');
+            }
+        }
+
+        // Location
+        function getLocation() {
+            if (!navigator.geolocation) {
+                alert('Geolocation not supported');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    alert(`📍 Location captured: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`);
+                },
+                (error) => {
+                    alert('Unable to get location: ' + error.message);
+                }
+            );
+        }
+
+        // Crop functionality
+        function openCropModal() {
+            if (!currentMedia || currentMediaType !== 'image') {
+                alert('Please upload an image first to crop');
+                return;
+            }
+
+            const modal = document.getElementById('cropModal');
+            const img = document.getElementById('cropImage');
+            const mainImg = document.getElementById('mainMedia');
+            
+            img.src = mainImg.src;
+            modal.classList.add('active');
+            
+            setTimeout(() => {
+                if (cropper) {
+                    cropper.destroy();
+                }
+                cropper = new Cropper(img, {
+                    aspectRatio: NaN,
+                    viewMode: 1,
+                    autoCropArea: 1,
+                });
+            }, 100);
+        }
+
+        function closeCropModal() {
+            const modal = document.getElementById('cropModal');
+            modal.classList.remove('active');
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+
+        function applyCrop() {
+            if (!cropper) return;
+            
+            const canvas = cropper.getCroppedCanvas();
+            const mainImg = document.getElementById('mainMedia');
+            mainImg.src = canvas.toDataURL();
+            
+            closeCropModal();
+        }
+
+        // Submit Story
+        function submitStory() {
+            if (!currentMedia) {
+                alert('Please upload media first!');
+                return;
+            }
+            
+            const storyData = {
+                media: currentMedia,
+                mediaType: currentMediaType,
+                audio: audioBlob,
+                location: userLocation,
+                filter: filters[currentFilterIndex],
+                texts: Array.from(document.querySelectorAll('.draggable-text')).map(el => ({
+                    content: el.textContent.replace('🗑', '').trim(),
+                    style: el.className,
+                    position: { left: el.style.left, top: el.style.top },
+                    color: el.style.color
+                })),
+                stickers: Array.from(document.querySelectorAll('.draggable-sticker')).map(el => ({
+                    emoji: el.textContent.replace('🗑', '').trim(),
+                    position: { left: el.style.left, top: el.style.top }
+                }))
+            };
+            
+            console.log('Story Data:', storyData);
+            
+            const overlay = document.getElementById('successOverlay');
+            overlay.classList.add('active');
+            
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                
+                let features = ['✓ Media'];
+                if (storyData.audio) features.push('✓ Audio Recording');
+                if (storyData.location) features.push('✓ Location');
+                if (storyData.texts.length > 0) features.push('✓ Text Elements');
+                if (storyData.stickers.length > 0) features.push('✓ Stickers');
+                if (storyData.filter !== 'none') features.push('✓ Filter Applied');
+                
+                alert('🎉 Story submitted successfully!\n\nYour story includes:\n' + features.join('\n'));
+                
+                // Here you would normally send to your backend
+                // uploadToServer(storyData);
+            }, 2000);
+        }
+
+        function closeStory() {
+            if (confirm('Are you sure you want to close? Your story will be lost.')) {
+                location.reload();
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            initColorPicker();
+            initStickers();
+        };
+    </script>
+</body>
+</html>

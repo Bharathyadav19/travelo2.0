@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hidden Gems - Discover & Share</title>
+    <link rel="stylesheet" href="dailychallenge.css">
+
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section" onclick="window.location.reload()">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>Hidden Gems</h1>
+                    <p>Discover. Share. Earn.</p>
+                </div>
+            </div>
+            <div class="user-section">
+                <div class="coin-badge">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <circle cx="12" cy="12" r="10"></circle>
+                    </svg>
+                    <span id="userCoins">145</span>
+                </div>
+                <div class="rank-badge" onclick="showBadgeInfo()">Silver I</div>
+                <div class="profile-link" onclick="showProfileInfo()" title="View Profile">🎯</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('challenge')">Daily Challenge</button>
+            <button class="tab" onclick="switchTab('leaderboard')">Leaderboard</button>
+        </div>
+
+        <div id="challengeSection">
+            <div class="challenge-card">
+                <div class="challenge-header">
+                    <div class="challenge-title">
+                        <div class="challenge-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2>Today's Challenge</h2>
+                            <p style="color: #9ca3af; font-size: 0.875rem;">Find hidden gems near you</p>
+                        </div>
+                    </div>
+                    <div class="time-left">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span id="timeLeft">18h 42m left</span>
+                    </div>
+                </div>
+
+                <div class="rewards-info">
+                    <div class="rewards-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                        Rewards & Penalties
+                    </div>
+                    <div class="reward-item">
+                        <span>First to discover a place (verified)</span>
+                        <span style="color: #22c55e; font-weight: 700;">+10 Coins</span>
+                    </div>
+                    <div class="reward-item">
+                        <span>Verify existing place (correct)</span>
+                        <span style="color: #fbbf24; font-weight: 700;">+5 Coins</span>
+                    </div>
+                    <div class="reward-item">
+                        <span>Fake/Wrong location</span>
+                        <span style="color: #ef4444; font-weight: 700;">-3 Coins</span>
+                    </div>
+                    <div class="reward-item">
+                        <span>Cooldown period</span>
+                        <span style="color: #9ca3af;">3 days after 3 uploads</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Your Uploads Today</div>
+                        <div class="stat-value" id="todayUploads">2/3</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Uploads</div>
+                        <div class="stat-value" id="totalUploads">12</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Your Rank</div>
+                        <div class="stat-value" id="userRank">#8</div>
+                    </div>
+                </div>
+
+                <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </div>
+                    <h3 style="margin-bottom: 0.5rem;">Upload Your Discovery</h3>
+                    <p style="color: #9ca3af; font-size: 0.875rem;">Click to capture or upload photo/video of underrated places</p>
+                    <input type="file" id="fileInput" accept="image/*,video/*" style="display: none;" onchange="handleFileUpload(event)">
+                </div>
+
+                <div id="verificationSection" class="verification-modal hidden">
+                    <div class="verification-title">
+                        🔍 Community Verification Required
+                    </div>
+                    <p style="color: #e0e7ff; margin-bottom: 0.5rem;">Help verify if this upload is from the correct location:</p>
+                    <p style="color: #9ca3af; font-size: 0.875rem; margin-bottom: 1rem;">
+                        <strong id="uploadLocationName">Hidden Waterfall</strong> uploaded by <strong id="uploadUserName">User123</strong>
+                    </p>
+                    <div class="verification-options">
+                        <button class="verify-btn correct" onclick="verifyUpload(true)">
+                            ✓ Correct Location
+                        </button>
+                        <button class="verify-btn incorrect" onclick="verifyUpload(false)">
+                            ✗ Fake/Wrong Location
+                        </button>
+                    </div>
+                </div>
+
+                <div id="cooldownNotice" class="cooldown-notice hidden">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; margin-right: 0.5rem;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <strong>Cooldown Active!</strong> You've uploaded 3 places. Next upload available in <span id="cooldownDays">3 days</span>.
+                </div>
+            </div>
+
+            <div class="recent-uploads">
+                <h3 class="recent-title">Recent Community Uploads</h3>
+                <div class="upload-item">
+                    <div class="upload-info">
+                        <h4>Hidden Waterfall Trail</h4>
+                        <div class="upload-meta">Sarah M. • 2h ago</div>
+                    </div>
+                    <div class="upload-reward verified">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                        +10 Coins
+                    </div>
+                </div>
+                <div class="upload-item">
+                    <div class="upload-info">
+                        <h4>Sunset Cliff Point</h4>
+                        <div class="upload-meta">Alex K. • 4h ago</div>
+                    </div>
+                    <div class="upload-reward duplicate">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                        +5 Coins
+                    </div>
+                </div>
+                <div class="upload-item">
+                    <div class="upload-info">
+                        <h4>Beach Photo (Fake)</h4>
+                        <div class="upload-meta">User789 • 5h ago</div>
+                    </div>
+                    <div class="upload-reward penalty">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                        -3 Coins
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="leaderboardSection" class="leaderboard">
+            <div class="podium">
+                <div class="podium-place second" onclick="openProfile('Alex K.', '🔥', 2, 41, 350, 1250)">
+                    <div class="podium-avatar">
+                        <span>🔥</span>
+                    </div>
+                    <div class="podium-rank">2nd</div>
+                    <div class="podium-name">Alex K.</div>
+                    <div class="podium-stats">41 uploads • 1,250 squad</div>
+                    <button class="connect-btn" onclick="event.stopPropagation(); toggleConnect(this)">Connect</button>
+                </div>
+                <div class="podium-place first" onclick="openProfile('Sarah M.', '🌟', 1, 47, 385, 1580)">
+                    <div class="podium-avatar">
+                        <span class="crown">👑</span>
+                        <span>🌟</span>
+                    </div>
+                    <div class="podium-rank">1st</div>
+                    <div class="podium-name">Sarah M.</div>
+                    <div class="podium-stats">47 uploads • 1,580 squad</div>
+                    <button class="connect-btn" onclick="event.stopPropagation(); toggleConnect(this)">Connect</button>
+                </div>
+                <div class="podium-place third" onclick="openProfile('Maya P.', '⭐', 3, 38, 320, 980)">
+                    <div class="podium-avatar">
+                        <span>⭐</span>
+                    </div>
+                    <div class="podium-rank">3rd</div>
+                    <div class="podium-name">Maya P.</div>
+                    <div class="podium-stats">38 uploads • 980 squad</div>
+                    <button class="connect-btn" onclick="event.stopPropagation(); toggleConnect(this)">Connect</button>
+                </div>
+            </div>
+
+            <div class="leaderboard-list">
+                <div class="leaderboard-item" onclick="openProfile('Jordan L.', '✨', 4, 35, 295, 850)">
+                    <div class="rank-number">4</div>
+                    <div class="user-avatar">✨</div>
+                    <div class="user-info">
+                        <div class="user-name">Jordan L.</div>
+                        <div class="user-uploads">35 uploads • 850 squad</div>
+                    </div>
+                    <div class="user-coins">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                        295
+                    </div>
+                    <button class="connect-btn" onclick="event.stopPropagation(); toggleConnect(this)" style="margin-left: 1rem;">Connect</button>
+                </div>
+                <div class="leaderboard-item" onclick="openProfile('Riley T.', '💫', 5, 33, 280, 720)">
+                    <div class="rank-number">5</div>
+                    <div class="user-avatar">💫</div>
+                    <div class="user-info">
+                        <div class="user-name">Riley T.</div>
+                        <div class="user-uploads">33 uploads • 720 squad</div>
+                    </div>
+                    <div class="user-coins">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                        280
+                    </div>
+                    <button class="connect-btn" onclick="event.stopPropagation(); toggleConnect(this)" style="margin-left: 1rem;">Connect</button>
+                </div>
+                
+                <div id="hiddenLeaders" class="hidden">
+                    <div class="leaderboard-item" onclick="openProfile('Cameron B.', '🌠', 6, 28, 245, 620)">
+                        <div class="rank-number">6</div>
+                        <div class="user-avatar">🌠</div>
+                        <div class="user-info">
+                            <div class="user-name">Cameron B.</div>
+                            <div class="user-uploads">28 uploads • 620 squad</div>
+                        </div>
+                        <div class="user-coins">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                            245
+                        </div>
+                        <button class="connect-btn" onclick="event.stopPropagation(); toggleConnect(this)" style="margin-left: 1rem;">Connect</button>
+                    </div>
+                    <div class="leaderboard-item" onclick="openProfile('Taylor W.', '⚡', 7, 25, 220, 550)">
+                        <div class="rank-number">7</div>
+                        <div class="user-avatar">⚡</div>
+                        <div class="user-info">
+                            <div class="user-name">Taylor W.</div>
+                            <div class="user-uploads">25 uploads • 550 squad</div>
+                        </div>
+                        <div class="user-coins">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                            220
+                        </div>
+                        <button class="connect-btn" onclick="event.stopPropagation(); toggleConnect(this)" style="margin-left: 1rem;">Connect</button>
+                    </div>
+                    <div class="leaderboard-item user">
+                        <div class="rank-number">8</div>
+                        <div class="user-avatar">🎯</div>
+                        <div class="user-info">
+                            <div class="user-name">You (<span id="leaderboardUserName">Traveler</span>)</div>
+                            <div class="user-uploads">12 uploads • <span id="userSquad">420</span> squad</div>
+                        </div>
+                        <div class="user-coins">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                            <span id="leaderboardCoins">145</span>
+                        </div>
+                    </div>
+                    <div class="leaderboard-item" onclick="openProfile('Morgan F.', '🎨', 9, 18, 165, 380)">
+                        <div class="rank-number">9</div>
+                        <div class="user-avatar">🎨</div>
+                        <div class="user-info">
+                            <div class="user-name">Morgan F.</div>
+                            <div class="user-uploads">18 uploads • 380 squad</div>
+                        </div>
+                        <div class="user-coins">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                            165
+                        </div>
+                        <button class="connect-btn" onclick="event.stopPropagation(); toggleConnect(this)" style="margin-left: 1rem;">Connect</button>
+                    </div>
+                    <div class="leaderboard-item" onclick="openProfile('Avery D.', '🎭', 10, 15, 140, 320)">
+                        <div class="rank-number">10</div>
+                        <div class="user-avatar">🎭</div>
+                        <div class="user-info">
+                            <div class="user-name">Avery D.</div>
+                            <div class="user-uploads">15 uploads • 320 squad</div>
+                        </div>
+                        <div class="user-coins">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                            140
+                        </div>
+                        <button class="connect-btn" onclick="event.stopPropagation(); toggleConnect(this)" style="margin-left: 1rem;">Connect</button>
+                    </div>
+                </div>
+
+                <div class="show-more">
+                    <button class="show-more-btn" onclick="toggleLeaderboard()">
+                        <span id="showMoreText">Show More</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="showMoreIcon">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeProfile()">✕</button>
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">🌟</div>
+                <h2 class="profile-name" id="profileName">Sarah M.</h2>
+                <p class="profile-rank" id="profileRankText">Rank #1</p>
+            </div>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="profileUploads">47</div>
+                    <div class="profile-stat-label">Uploads</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="profileCoins">385</div>
+                    <div class="profile-stat-label">Coins</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="profileSquad">1,580</div>
+                    <div class="profile-stat-label">Squad</div>
+                </div>
+            </div>
+            <button class="profile-connect-btn" id="profileConnectBtn" onclick="toggleProfileConnect()">Connect</button>
+        </div>
+    </div>
+
+    <script>
+        // Discovered locations tracker
+        let discoveredLocations = {};
+
+        // User data storage
+        let userData = {
+            username: localStorage.getItem('username') || 'Traveler',
+            coins: parseFloat(localStorage.getItem('coins')) || 145,
+            todayUploads: parseInt(localStorage.getItem('todayUploads')) || 2,
+            totalUploads: parseInt(localStorage.getItem('totalUploads')) || 12,
+            rank: parseInt(localStorage.getItem('rank')) || 8,
+            squad: parseInt(localStorage.getItem('squad')) || 420,
+            cooldownDays: parseInt(localStorage.getItem('cooldownDays')) || 0
+        };
+
+        // Initialize the page
+        function initializePage() {
+            document.getElementById('leaderboardUserName').textContent = userData.username;
+            document.getElementById('userCoins').textContent = userData.coins;
+            document.getElementById('leaderboardCoins').textContent = userData.coins;
+            document.getElementById('todayUploads').textContent = `${userData.todayUploads}/3`;
+            document.getElementById('totalUploads').textContent = userData.totalUploads;
+            document.getElementById('userRank').textContent = `#${userData.rank}`;
+            document.getElementById('userSquad').textContent = userData.squad;
+
+            if (userData.cooldownDays > 0) {
+                showCooldownNotice();
+            }
+
+            // Show verification section randomly
+            if (Math.random() > 0.5) {
+                setTimeout(() => {
+                    document.getElementById('verificationSection').classList.remove('hidden');
+                }, 3000);
+            }
+        }
+
+        // Save user data to localStorage
+        function saveUserData() {
+            localStorage.setItem('username', userData.username);
+            localStorage.setItem('coins', userData.coins);
+            localStorage.setItem('todayUploads', userData.todayUploads);
+            localStorage.setItem('totalUploads', userData.totalUploads);
+            localStorage.setItem('rank', userData.rank);
+            localStorage.setItem('squad', userData.squad);
+            localStorage.setItem('cooldownDays', userData.cooldownDays);
+        }
+
+        // Switch between tabs
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const challengeSection = document.getElementById('challengeSection');
+            const leaderboardSection = document.getElementById('leaderboardSection');
+
+            if (tab === 'challenge') {
+                challengeSection.style.display = 'block';
+                leaderboardSection.classList.remove('active');
+            } else {
+                challengeSection.style.display = 'none';
+                leaderboardSection.classList.add('active');
+            }
+        }
+
+        // Toggle leaderboard show more/less
+        function toggleLeaderboard() {
+            const hiddenLeaders = document.getElementById('hiddenLeaders');
+            const showMoreText = document.getElementById('showMoreText');
+            const showMoreIcon = document.getElementById('showMoreIcon');
+
+            if (hiddenLeaders.classList.contains('hidden')) {
+                hiddenLeaders.classList.remove('hidden');
+                showMoreText.textContent = 'Show Less';
+                showMoreIcon.style.transform = 'rotate(180deg)';
+            } else {
+                hiddenLeaders.classList.add('hidden');
+                showMoreText.textContent = 'Show More';
+                showMoreIcon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Verify upload
+        function verifyUpload(isCorrect) {
+            const verificationSection = document.getElementById('verificationSection');
+            
+            if (isCorrect) {
+                alert('✅ Thank you for verifying!\n\nYou helped confirm this location is correct.\n+2 Coins for verification');
+                userData.coins += 2;
+            } else {
+                alert('⚠️ Thanks for reporting!\n\nYou marked this as fake/wrong location.\nThe uploader will lose 3 coins if confirmed by others.');
+            }
+            
+            verificationSection.classList.add('hidden');
+            updateUI();
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (userData.todayUploads >= 3) {
+                alert('You have reached your daily upload limit! Cooldown period: 3 days');
+                showCooldownNotice();
+                return;
+            }
+
+            const fileName = file.name;
+            
+            alert('📍 Verifying location...\n🤖 AI analyzing your upload...\n✨ Processing...');
+
+            setTimeout(() => {
+                // Generate random location
+                const locationName = 'Location_' + Math.random().toString(36).substr(2, 9);
+                
+                // Check if location already discovered
+                const isNewPlace = !discoveredLocations[locationName];
+                
+                if (isNewPlace) {
+                    discoveredLocations[locationName] = userData.username;
+                }
+                
+                // Simulate verification (80% pass, 20% fail)
+                const passedVerification = Math.random() > 0.2;
+                
+                let coinsEarned;
+                let message;
+                
+                if (!passedVerification) {
+                    coinsEarned = -3;
+                    message = `❌ Verification Failed!\n\nYour upload was marked as fake or wrong location by the community.\nPenalty: ${coinsEarned} Coins 💰`;
+                } else if (isNewPlace) {
+                    coinsEarned = 10;
+                    message = `🎉 Amazing Discovery!\n\nYou're the FIRST to discover this hidden gem!\nReward: +${coinsEarned} Coins 💰`;
+                } else {
+                    coinsEarned = 5;
+                    message = `✅ Location Verified!\n\nThis place was already uploaded by ${discoveredLocations[locationName]}, but thanks for verifying!\nReward: +${coinsEarned} Coins 💰`;
+                }
+
+                userData.coins += coinsEarned;
+                userData.todayUploads++;
+                userData.totalUploads++;
+
+                updateUI();
+                saveUserData();
+                alert(message);
+
+                if (userData.todayUploads >= 3) {
+                    showCooldownNotice();
+                }
+            }, 2000);
+
+            event.target.value = '';
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('userCoins').textContent = userData.coins;
+            document.getElementById('leaderboardCoins').textContent = userData.coins;
+            document.getElementById('todayUploads').textContent = `${userData.todayUploads}/3`;
+            document.getElementById('totalUploads').textContent = userData.totalUploads;
+            document.getElementById('userSquad').textContent = userData.squad;
+            saveUserData();
+        }
+
+        // Show cooldown notice
+        function showCooldownNotice() {
+            const cooldownNotice = document.getElementById('cooldownNotice');
+            cooldownNotice.classList.remove('hidden');
+            userData.cooldownDays = 3;
+            document.getElementById('cooldownDays').textContent = userData.cooldownDays + ' days';
+            saveUserData();
+        }
+
+        // Update countdown timer
+        function updateTimer() {
+            const now = new Date();
+            const tomorrow = new Date();
+            tomorrow.setHours(24, 0, 0, 0);
+            
+            const diff = tomorrow - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            document.getElementById('timeLeft').textContent = `${hours}h ${minutes}m left`;
+        }
+
+        // Profile modal functions
+        function openProfile(name, avatar, rank, uploads, coins, squad) {
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profileAvatar').textContent = avatar;
+            document.getElementById('profileRankText').textContent = `Rank #${rank}`;
+            document.getElementById('profileUploads').textContent = uploads;
+            document.getElementById('profileCoins').textContent = coins;
+            document.getElementById('profileSquad').textContent = squad.toLocaleString();
+            document.getElementById('profileModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function toggleConnect(btn) {
+            if (btn.classList.contains('connected')) {
+                btn.classList.remove('connected');
+                btn.textContent = 'Connect';
+                userData.squad = Math.max(0, userData.squad - 1);
+            } else {
+                btn.classList.add('connected');
+                btn.textContent = '✓ Connected';
+                userData.squad += 1;
+            }
+            updateUI();
+        }
+
+        function toggleProfileConnect() {
+            const btn = document.getElementById('profileConnectBtn');
+            if (btn.classList.contains('connected')) {
+                btn.classList.remove('connected');
+                btn.textContent = 'Connect';
+                userData.squad = Math.max(0, userData.squad - 1);
+            } else {
+                btn.classList.add('connected');
+                btn.textContent = '✓ Connected';
+                userData.squad += 1;
+            }
+            updateUI();
+        }
+
+        // Show badge system info
+        function showBadgeInfo() {
+            alert('🏆 Badge System (Based on Squad)\n\n' +
+                  '🥉 Bronze III: 0-99 squad\n' +
+                  '🥉 Bronze II: 100-299 squad\n' +
+                  '🥉 Bronze I: 300-499 squad\n\n' +
+                  '🥈 Silver III: 500-999 squad\n' +
+                  '🥈 Silver II: 1,000-4,999 squad\n' +
+                  '🥈 Silver I: 5,000-9,999 squad\n\n' +
+                  '🥇 Gold III: 10,000-49,999 squad\n' +
+                  '🥇 Gold II-I: 50,000-99,999 squad\n\n' +
+                  '💎 Platinum: 100,000-999,999 squad\n\n' +
+                  '🏅 Legend: 1,000,000+ squad');
+        }
+
+        // Show profile info
+        function showProfileInfo() {
+            alert('👤 Your Profile\n\n' +
+                  'Username: ' + userData.username + '\n' +
+                  'Coins: ' + userData.coins + '\n' +
+                  'Squad: ' + userData.squad + ' followers\n' +
+                  'Total Uploads: ' + userData.totalUploads + '\n' +
+                  'Current Rank: #' + userData.rank + '\n\n' +
+                  '✨ Full profile page coming soon!');
+        }
+
+        // Close modal on outside click
+        document.getElementById('profileModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProfile();
+            }
+        });
+
+        // Update timer every minute
+        setInterval(updateTimer, 60000);
+        updateTimer();
+
+        // Add animation on load
+        window.addEventListener('load', () => {
+            initializePage();
+            
+            const cards = document.querySelectorAll('.challenge-card, .leaderboard-list');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Prompt user to set username on first visit
+        if (userData.username === 'Traveler') {
+            setTimeout(() => {
+                const newUsername = prompt('Welcome to Hidden Gems! 🌟\n\nPlease enter your username:');
+                if (newUsername && newUsername.trim()) {
+                    userData.username = newUsername.trim();
+                    saveUserData();
+                    initializePage();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

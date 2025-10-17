@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Location</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-btn span {
+            width: 20px;
+            height: 2px;
+            background: white;
+            border-radius: 2px;
+        }
+
+        .location-icon {
+            width: 120px;
+            height: 140px;
+            margin: 30px auto 50px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pin {
+            width: 90px;
+            height: 90px;
+            background: white;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .pin::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #7c3aed;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .pin-shadow {
+            position: absolute;
+            bottom: -20px;
+            width: 80px;
+            height: 20px;
+            background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: rotate(-45deg) translateY(0); }
+            50% { transform: rotate(-45deg) translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .camera-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .frame-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 4/3;
+        }
+
+        .corner-frame {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 4px solid white;
+        }
+
+        .corner.top-left {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+            border-radius: 15px 0 0 0;
+        }
+
+        .corner.top-right {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+            border-radius: 0 15px 0 0;
+        }
+
+        .corner.bottom-left {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+            border-radius: 0 0 0 15px;
+        }
+
+        .corner.bottom-right {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+            border-radius: 0 0 15px 0;
+        }
+
+        #video, #canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        #canvas {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .capture-btn {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 70px;
+            background: white;
+            border: 5px solid #a78bfa;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .capture-btn:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .bottom-section {
+            padding: 30px 20px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
+            border-radius: 20px;
+            width: 50%;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .progress-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 20px;
+            background: white;
+            color: #5b21b6;
+            border: none;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .verify-btn:active {
+            transform: scale(0.98);
+        }
+
+        .verify-icon {
+            width: 28px;
+            height: 28px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: slideUp 0.4s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .coin-reward {
+            font-size: 56px;
+            margin: 20px 0;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-yes {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-no {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-continue {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .secondary-btn {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .secondary-btn:active {
+            transform: scale(0.95);
+        }
+
+        .location-status {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            margin-bottom: 10px;
+        }
+
+        .distance-info {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">‹</button>
+        <button class="menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+
+    <div class="location-icon">
+        <div class="pin"></div>
+        <div class="pin-shadow"></div>
+    </div>
+
+    <div class="camera-container">
+        <div class="frame-container">
+            <div class="corner-frame">
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+            </div>
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas"></canvas>
+            <button class="capture-btn" id="captureBtn" onclick="capturePhoto()">📷</button>
+        </div>
+    </div>
+
+    <div class="bottom-section">
+        <div class="location-status" id="locationStatus">
+            📍 Getting your location...
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="progress-text">Uppad</span>
+        </div>
+
+        <button class="verify-btn hidden" id="verifyBtn" onclick="verifyLocation()">
+            <svg class="verify-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+            </svg>
+            Verify
+        </button>
+
+        <div class="button-group hidden" id="buttonGroup">
+            <button class="secondary-btn" onclick="savePhoto()">💾 Save</button>
+            <button class="secondary-btn" onclick="retakePhoto()">🔄 Retake</button>
+        </div>
+    </div>
+
+    <div class="result-modal" id="resultModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Result</h2>
+            <div id="modalMessage"></div>
+            <div id="modalButtons"></div>
+        </div>
+    </div>
+
+    <script>
+        const MAPTILER_API_KEY = 'VP7oa7cZo1wqyYCjLr4N';
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let captureBtn = document.getElementById('captureBtn');
+        let verifyBtn = document.getElementById('verifyBtn');
+        let buttonGroup = document.getElementById('buttonGroup');
+        let locationStatus = document.getElementById('locationStatus');
+        let ctx = canvas.getContext('2d');
+        let capturedImage = null;
+        let currentLocation = null;
+        let targetLocation = null;
+        let watchId = null;
+
+        window.onload = function() {
+            const accepted = localStorage.getItem('acceptedLocation');
+            if (accepted) {
+                targetLocation = JSON.parse(accepted);
+                console.log('Target location:', targetLocation);
+            } else {
+                locationStatus.innerHTML = '⚠️ No target location set';
+            }
+            getCurrentLocation();
+            startCamera();
+        };
+
+        function goBack() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+            window.history.back();
+        }
+
+        function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                locationStatus.innerHTML = '❌ Geolocation not supported';
+                return;
+            }
+
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    currentLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    };
+
+                    if (targetLocation) {
+                        const distance = calculateDistance(
+                            currentLocation.lat,
+                            currentLocation.lng,
+                            targetLocation.lat,
+                            targetLocation.lng
+                        );
+
+                        if (distance < 100) {
+                            locationStatus.innerHTML = `✅ You're at the location!<div class="distance-info">Distance: ${distance.toFixed(0)}m away</div>`;
+                        } else if (distance < 500) {
+                            locationStatus.innerHTML = `🎯 Getting closer!<div class="distance-info">Distance: ${distance.toFixed(0)}m away</div>`;
+                        } else {
+                            locationStatus.innerHTML = `📍 Move to target location<div class="distance-info">Distance: ${(distance/1000).toFixed(2)}km away</div>`;
+                        }
+                    } else {
+                        locationStatus.innerHTML = `📍 Location acquired<div class="distance-info">Accuracy: ±${position.coords.accuracy.toFixed(0)}m</div>`;
+                    }
+                },
+                (error) => {
+                    console.error('Location error:', error);
+                    locationStatus.innerHTML = '❌ Please enable location access';
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 5000
+                }
+            );
+        }
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    } 
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                alert('Unable to access camera. Please grant camera permissions.');
+                console.error('Camera error:', err);
+            }
+        }
+
+        function capturePhoto() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            capturedImage = canvas.toDataURL('image/png');
+            
+            video.style.display = 'none';
+            canvas.style.display = 'block';
+            
+            captureBtn.classList.add('hidden');
+            verifyBtn.classList.remove('hidden');
+            buttonGroup.classList.remove('hidden');
+            
+            document.getElementById('progressFill').style.width = '100%';
+        }
+
+        function retakePhoto() {
+            video.style.display = 'block';
+            canvas.style.display = 'none';
+            captureBtn.classList.remove('hidden');
+            verifyBtn.classList.add('hidden');
+            buttonGroup.classList.add('hidden');
+            document.getElementById('progressFill').style.width = '50%';
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Earth radius in meters
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c; // Distance in meters
+        }
+
+        async function verifyLocation() {
+            if (!currentLocation) {
+                alert('Please wait for GPS location...');
+                return;
+            }
+
+            if (!targetLocation) {
+                alert('No target location set. Please select a location first.');
+                return;
+            }
+
+            const distance = calculateDistance(
+                currentLocation.lat,
+                currentLocation.lng,
+                targetLocation.lat,
+                targetLocation.lng
+            );
+
+            console.log('Distance to target:', distance, 'meters');
+
+            // Accept within 100 meters with high accuracy, or 200 meters with lower accuracy
+            const threshold = currentLocation.accuracy > 50 ? 200 : 100;
+            const isCorrect = distance < threshold;
+
+            if (isCorrect) {
+                showSuccessModal(distance);
+            } else {
+                showErrorModal(distance);
+            }
+        }
+
+        function showSuccessModal(distance) {
+            const modal = document.getElementById('resultModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalButtons = document.getElementById('modalButtons');
+
+            modalTitle.innerHTML = '<span class="success">✅ Location Verified!</span>';
+            modalMessage.innerHTML = `
+                <div class="coin-reward">🪙 +10 ETH</div>
+                <p style="color: #6b7280; font-size: 16px;">Congratulations! You are at the correct location.</p>
+                <p style="color: #9ca3af; font-size: 14px; margin-top: 10px;">Distance: ${distance.toFixed(0)}m from target</p>
+            `;
+            modalButtons.innerHTML = `
+                <button class="modal-btn btn-continue" onclick="addReward(10)">Continue to Rewards</button>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function showErrorModal(distance) {
+            const modal = document.getElementById('resultModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalButtons = document.getElementById('modalButtons');
+
+            modalTitle.innerHTML = '<span class="error">❌ Location Mismatch</span>';
+            modalMessage.innerHTML = `
+                <p style="color: #374151; font-size: 18px; font-weight: 600; margin: 20px 0;">Are you sure you are at the correct location?</p>
+                <p style="color: #9ca3af; font-size: 14px;">You are ${distance > 1000 ? (distance/1000).toFixed(2) + 'km' : distance.toFixed(0) + 'm'} away from the target.</p>
+            `;
+            modalButtons.innerHTML = `
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-yes" onclick="confirmWrongLocation()">Yes</button>
+                    <button class="modal-btn btn-no" onclick="retryPhoto()">No</button>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function confirmWrongLocation() {
+            const modal = document.getElementById('resultModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalButtons = document.getElementById('modalButtons');
+
+            modalTitle.innerHTML = '<span class="error">⚠️ Penalty Applied</span>';
+            modalMessage.innerHTML = `
+                <div class="coin-reward">🪙 -7 ETH</div>
+                <p style="color: #6b7280; font-size: 16px;">7 coins have been deducted for incorrect location verification.</p>
+            `;
+            modalButtons.innerHTML = `
+                <button class="modal-btn btn-continue" onclick="addReward(-7)">Continue</button>
+            `;
+        }
+
+        function retryPhoto() {
+            document.getElementById('resultModal').style.display = 'none';
+            retakePhoto();
+        }
+
+        function addReward(coins) {
+            let rewards = parseInt(localStorage.getItem('totalRewards') || '0');
+            rewards += coins;
+            localStorage.setItem('totalRewards', rewards.toString());
+
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push({
+                date: new Date().toISOString(),
+                amount: coins,
+                location: targetLocation ? targetLocation.name : 'Unknown',
+                type: coins > 0 ? 'reward' : 'penalty',
+                distance: currentLocation && targetLocation ? calculateDistance(
+                    currentLocation.lat,
+                    currentLocation.lng,
+                    targetLocation.lat,
+                    targetLocation.lng
+                ).toFixed(0) + 'm' : 'N/A'
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+
+            window.location.href = 'reward.html';
+        }
+
+        function savePhoto() {
+            if (!capturedImage) {
+                alert('No photo captured!');
+                return;
+            }
+
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            link.download = `location-verification-${timestamp}.png`;
+            link.href = capturedImage;
+            link.click();
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #10b981;
+                color: white;
+                padding: 15px 30px;
+                border-radius: 50px;
+                z-index: 9999;
+                animation: slideDown 0.3s ease-out;
+            `;
+            notification.textContent = '✓ Photo saved successfully!';
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+        });
+    </script>
+</body>
+</html>

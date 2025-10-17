@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search - Travelo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="search.css" />
+</head>
+
+<body>
+    <header class="header">
+        <button class="back-btn" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="header-title">Explore</h1>
+    </header>
+
+    <div class="search-container">
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search destinations, people, or experiences...">
+            <button class="clear-btn" id="clearBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="advanced-toggle">
+            <button class="advanced-btn" id="advancedBtn">
+                <i class="fas fa-sliders-h"></i> Advanced Search
+            </button>
+        </div>
+
+        <div class="advanced-filters" id="advancedFilters">
+            <div class="filter-group">
+                <label class="filter-label">Trip Type</label>
+                <div class="filter-options">
+                    <button class="filter-chip" data-filter="adventure" data-category="trip">🏔️ Adventure</button>
+                    <button class="filter-chip" data-filter="beach" data-category="trip">🏖️ Beach</button>
+                    <button class="filter-chip" data-filter="culture" data-category="trip">🏛️ Culture</button>
+                    <button class="filter-chip" data-filter="nature" data-category="trip">🌲 Nature</button>
+                    <button class="filter-chip" data-filter="city" data-category="trip">🏙️ City</button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Budget</label>
+                <div class="filter-options">
+                    <button class="filter-chip" data-filter="budget" data-category="budget">💰 Budget</button>
+                    <button class="filter-chip" data-filter="moderate" data-category="budget">💵 Moderate</button>
+                    <button class="filter-chip" data-filter="luxury" data-category="budget">💎 Luxury</button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Season</label>
+                <div class="filter-options">
+                    <button class="filter-chip" data-filter="summer" data-category="season">☀️ Summer</button>
+                    <button class="filter-chip" data-filter="winter" data-category="season">❄️ Winter</button>
+                    <button class="filter-chip" data-filter="anytime" data-category="season">🌍 Anytime</button>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="filter-action-btn reset-btn" id="resetBtn">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+                <button class="filter-action-btn apply-btn" id="applyBtn">
+                    <i class="fas fa-check"></i> Apply Filters
+                </button>
+            </div>
+        </div>
+
+        <div class="active-filters-display" id="activeFiltersDisplay">
+            <div class="filters-label">Active Filters:</div>
+            <div class="active-filter-tags" id="activeFilterTags"></div>
+        </div>
+    </div>
+
+    <div class="tab-switcher">
+        <button class="tab-btn active" data-tab="places">
+            <i class="fas fa-map-marker-alt"></i> Places
+        </button>
+        <button class="tab-btn" data-tab="people">
+            <i class="fas fa-user"></i> People
+        </button>
+    </div>
+
+    <div class="content-area">
+        <div class="tab-content active" id="placesTab">
+            <div id="placesResults"></div>
+        </div>
+
+        <div class="tab-content" id="peopleTab">
+            <div id="peopleResults"></div>
+        </div>
+    </div>
+
+    <script>
+        const places = [
+            {
+                id: 1,
+                name: "Santorini",
+                country: "Greece",
+                image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=800",
+                description: "Santorini is a stunning volcanic island in the Aegean Sea, famous for its dramatic cliffs, whitewashed buildings with blue-domed churches, and breathtaking sunsets.",
+                highlights: ["🌅 Stunning Sunsets", "🏛️ Ancient Ruins", "🏖️ Volcanic Beaches", "🍷 Wine Tasting", "⛵ Boat Tours"],
+                posts: 2847,
+                visitors: "1.5M",
+                rating: 4.8,
+                filters: {
+                    trip: ["beach", "culture"],
+                    budget: ["luxury", "moderate"],
+                    season: ["summer"]
+                },
+                travelers: [
+                    { name: "Maria Santos", status: "Visited last month", avatar: "https://ui-avatars.com/api/?name=Maria+Santos&background=0084ff&color=fff", connected: false },
+                    { name: "Alex Chen", status: "Planning to visit", avatar: "https://ui-avatars.com/api/?name=Alex+Chen&background=667eea&color=fff", connected: true }
+                ]
+            },
+            {
+                id: 2,
+                name: "Bali",
+                country: "Indonesia",
+                image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800",
+                description: "Bali is Indonesia's most famous tropical paradise, known as the 'Island of the Gods.' This enchanting destination offers a perfect mix of spiritual culture, stunning landscapes, and adventure.",
+                highlights: ["🌾 Rice Terraces", "🛕 Ancient Temples", "🏄 Surfing", "🧘 Yoga Retreats", "🌴 Beach Clubs"],
+                posts: 5432,
+                visitors: "6.3M",
+                rating: 4.9,
+                filters: {
+                    trip: ["beach", "culture", "nature", "adventure"],
+                    budget: ["budget", "moderate"],
+                    season: ["anytime"]
+                },
+                travelers: [
+                    { name: "Sarah Williams", status: "Currently here!", avatar: "https://ui-avatars.com/api/?name=Sarah+Williams&background=f093fb&color=fff", connected: false },
+                    { name: "Jake Morrison", status: "Visited 2 weeks ago", avatar: "https://ui-avatars.com/api/?name=Jake+Morrison&background=4facfe&color=fff", connected: false }
+                ]
+            },
+            {
+                id: 3,
+                name: "Tokyo",
+                country: "Japan",
+                image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800",
+                description: "Tokyo is a mesmerizing blend of ultra-modern technology and ancient tradition. This vibrant metropolis offers an endless array of experiences from serene temples to neon-lit streets.",
+                highlights: ["🌸 Cherry Blossoms", "⛩️ Temples & Shrines", "🍣 Sushi Culture", "🤖 Technology", "🎌 Anime & Manga"],
+                posts: 7234,
+                visitors: "14.5M",
+                rating: 4.8,
+                filters: {
+                    trip: ["city", "culture"],
+                    budget: ["moderate", "luxury"],
+                    season: ["summer", "winter"]
+                },
+                travelers: [
+                    { name: "Yuki Tanaka", status: "Local guide", avatar: "https://ui-avatars.com/api/?name=Yuki+Tanaka&background=43e97b&color=fff", connected: true },
+                    { name: "Emma Foster", status: "Visited last week", avatar: "https://ui-avatars.com/api/?name=Emma+Foster&background=fa709a&color=fff", connected: false }
+                ]
+            }
+        ];
+
+        const users = [
+            { id: 1, name: "Sarah Johnson", username: "@sarahexplorer", location: "Paris, France", avatar: "https://ui-avatars.com/api/?name=Sarah+Johnson&background=667eea&color=fff", connected: false },
+            { id: 2, name: "Mike Chen", username: "@miketravels", location: "Tokyo, Japan", avatar: "https://ui-avatars.com/api/?name=Mike+Chen&background=f093fb&color=fff", connected: true },
+            { id: 3, name: "Emily Davis", username: "@emilywanders", location: "Bali, Indonesia", avatar: "https://ui-avatars.com/api/?name=Emily+Davis&background=4facfe&color=fff", connected: false },
+            { id: 4, name: "Alex Turner", username: "@alexadventures", location: "Swiss Alps", avatar: "https://ui-avatars.com/api/?name=Alex+Turner&background=43e97b&color=fff", connected: false },
+            { id: 5, name: "Jessica Brown", username: "@jessicatrips", location: "Maldives", avatar: "https://ui-avatars.com/api/?name=Jessica+Brown&background=fa709a&color=fff", connected: true },
+            { id: 6, name: "David Lee", username: "@davidroams", location: "New York, USA", avatar: "https://ui-avatars.com/api/?name=David+Lee&background=30cfd0&color=fff", connected: false }
+        ];
+
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearBtn');
+        const advancedBtn = document.getElementById('advancedBtn');
+        const advancedFilters = document.getElementById('advancedFilters');
+        const applyBtn = document.getElementById('applyBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const activeFiltersDisplay = document.getElementById('activeFiltersDisplay');
+        const activeFilterTags = document.getElementById('activeFilterTags');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const placesResults = document.getElementById('placesResults');
+        const peopleResults = document.getElementById('peopleResults');
+        
+        let currentTab = 'places';
+        let selectedFilters = { trip: [], budget: [], season: [] };
+        let appliedFilters = { trip: [], budget: [], season: [] };
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                currentTab = btn.dataset.tab;
+                document.getElementById(currentTab + 'Tab').classList.add('active');
+                
+                performSearch(searchInput.value);
+            });
+        });
+
+        advancedBtn.addEventListener('click', () => {
+            advancedFilters.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('active');
+                const filter = chip.dataset.filter;
+                const category = chip.dataset.category;
+                
+                if (chip.classList.contains('active')) {
+                    if (!selectedFilters[category].includes(filter)) {
+                        selectedFilters[category].push(filter);
+                    }
+                } else {
+                    selectedFilters[category] = selectedFilters[category].filter(f => f !== filter);
+                }
+            });
+        });
+
+        applyBtn.addEventListener('click', () => {
+            appliedFilters = JSON.parse(JSON.stringify(selectedFilters));
+            updateActiveFiltersDisplay();
+            advancedFilters.classList.remove('active');
+            performSearch(searchInput.value);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            selectedFilters = { trip: [], budget: [], season: [] };
+            appliedFilters = { trip: [], budget: [], season: [] };
+            
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            
+            updateActiveFiltersDisplay();
+            performSearch(searchInput.value);
+        });
+
+        function updateActiveFiltersDisplay() {
+            const hasFilters = appliedFilters.trip.length > 0 || 
+                             appliedFilters.budget.length > 0 || 
+                             appliedFilters.season.length > 0;
+            
+            if (hasFilters) {
+                activeFiltersDisplay.classList.add('show');
+                const allFilters = [
+                    ...appliedFilters.trip,
+                    ...appliedFilters.budget,
+                    ...appliedFilters.season
+                ];
+                
+                activeFilterTags.innerHTML = allFilters.map(filter => `
+                    <div class="active-filter-tag">
+                        ${getFilterEmoji(filter)} ${capitalizeFirst(filter)}
+                        <span class="remove-filter" onclick="removeFilter('${filter}')">×</span>
+                    </div>
+                `).join('');
+            } else {
+                activeFiltersDisplay.classList.remove('show');
+            }
+        }
+
+        function getFilterEmoji(filter) {
+            const emojiMap = {
+                'adventure': '🏔️', 'beach': '🏖️', 'culture': '🏛️',
+                'nature': '🌲', 'city': '🏙️', 'budget': '💰',
+                'moderate': '💵', 'luxury': '💎', 'summer': '☀️',
+                'winter': '❄️', 'anytime': '🌍'
+            };
+            return emojiMap[filter] || '';
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        window.removeFilter = function(filter) {
+            for (let category in appliedFilters) {
+                appliedFilters[category] = appliedFilters[category].filter(f => f !== filter);
+                selectedFilters[category] = selectedFilters[category].filter(f => f !== filter);
+            }
+            
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                if (chip.dataset.filter === filter) {
+                    chip.classList.remove('active');
+                }
+            });
+            
+            updateActiveFiltersDisplay();
+            performSearch(searchInput.value);
+        };
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+            clearBtn.classList.toggle('active', query.length > 0);
+            performSearch(query);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearBtn.classList.remove('active');
+            performSearch('');
+            searchInput.focus();
+        });
+
+        function performSearch(query) {
+            if (currentTab === 'places') {
+                searchPlaces(query);
+            } else {
+                searchPeople(query);
+            }
+        }
+
+        function searchPlaces(query) {
+            let filtered = places;
+
+            const hasFilters = appliedFilters.trip.length > 0 || 
+                              appliedFilters.budget.length > 0 || 
+                              appliedFilters.season.length > 0;
+
+            if (hasFilters) {
+                filtered = places.filter(place => {
+                    const matchesTrip = appliedFilters.trip.length === 0 || 
+                                       appliedFilters.trip.some(f => place.filters.trip.includes(f));
+                    const matchesBudget = appliedFilters.budget.length === 0 || 
+                                         appliedFilters.budget.some(f => place.filters.budget.includes(f));
+                    const matchesSeason = appliedFilters.season.length === 0 || 
+                                         appliedFilters.season.some(f => place.filters.season.includes(f));
+                    return matchesTrip && matchesBudget && matchesSeason;
+                });
+            }
+
+            if (query) {
+                filtered = filtered.filter(place => 
+                    place.name.toLowerCase().includes(query.toLowerCase()) ||
+                    place.country.toLowerCase().includes(query.toLowerCase()) ||
+                    place.description.toLowerCase().includes(query.toLowerCase())
+                );
+            }
+
+            if (!query && !hasFilters) {
+                placesResults.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-globe-americas"></i>
+                        <h3>Discover Amazing Places</h3>
+                        <p>Search for destinations or use filters to explore</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (filtered.length === 0) {
+                placesResults.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search-location"></i>
+                        <h3>No Places Found</h3>
+                        <p>Try different keywords or explore popular destinations</p>
+                    </div>
+                `;
+                return;
+            }
+
+            placesResults.innerHTML = filtered.map(place => `
+                <div class="place-card">
+                    <div class="place-image-wrapper">
+                        <img src="${place.image}" alt="${place.name}" class="place-image">
+                        <div class="place-overlay">
+                            <div class="place-name">${place.name}</div>
+                            <div class="place-country">
+                                <i class="fas fa-map-marker-alt"></i> ${place.country}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="place-content">
+                        <div class="place-description">${place.description}</div>
+                        <hr class="section-divider">
+                        <div class="section-title"><i class="fas fa-star"></i> Highlights</div>
+                        <div class="highlights-grid">
+                            ${place.highlights.map(h => `<div class="highlight-item">${h}</div>`).join('')}
+                        </div>
+                        <div class="place-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">${place.posts}</div>
+                                <div class="stat-label">Posts</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">${place.visitors}</div>
+                                <div class="stat-label">Visitors</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">${place.rating}</div>
+                                <div class="stat-label">Rating</div>
+                            </div>
+                        </div>
+                        <hr class="section-divider">
+                        <div class="section-title"><i class="fas fa-users"></i> Travelers</div>
+                        <div class="travelers-section">
+                            ${place.travelers.map(user => `
+                                <div class="traveler-card">
+                                    <img src="${user.avatar}" class="traveler-avatar" alt="${user.name}">
+                                    <div class="traveler-info">
+                                        <div class="traveler-name">${user.name}</div>
+                                        <div class="traveler-status">${user.status}</div>
+                                    </div>
+                                    <button class="connect-btn${user.connected ? ' connected' : ''}" onclick="event.stopPropagation(); toggleConnect(this)">
+                                        ${user.connected ? 'Connected' : 'Connect'}
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchPeople(query) {
+            if (!query) {
+                peopleResults.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>Find Travel Buddies</h3>
+                        <p>Search for travelers and connect with them</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const filtered = users.filter(user => 
+                user.name.toLowerCase().includes(query.toLowerCase()) ||
+                user.username.toLowerCase().includes(query.toLowerCase()) ||
+                user.location.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                peopleResults.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-slash"></i>
+                        <h3>No Users Found</h3>
+                        <p>Try searching with different keywords</p>
+                    </div>
+                `;
+                return;
+            }
+
+            peopleResults.innerHTML = filtered.map(user => `
+                <div class="user-card" onclick="viewProfile(${user.id})">
+                    <img src="${user.avatar}" alt="${user.name}" class="user-avatar">
+                    <div class="user-info">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-username">${user.username}</div>
+                        <div class="user-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            ${user.location}
+                        </div>
+                    </div>
+                    <button class="connect-btn ${user.connected ? 'connected' : ''}" onclick="event.stopPropagation(); toggleConnect(this)">
+                        ${user.connected ? 'Connected' : 'Connect'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function toggleConnect(btn) {
+            if (btn.classList.contains('connected')) {
+                btn.classList.remove('connected');
+                btn.textContent = 'Connect';
+            } else {
+                btn.classList.add('connected');
+                btn.textContent = 'Connected';
+            }
+        }
+
+        function viewProfile(userId) {
+            alert('Opening profile for user ' + userId + '\n\nThis would navigate to the user profile page.');
+        }
+
+        performSearch('');
+    </script>
+</body>
+</html>
